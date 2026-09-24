@@ -1,1 +1,22 @@
-{"version":1,"trips":[]}
+{
+  "version": 1,
+  "trips": [
+    {
+      "id": "wwSu1NNNPGtycnrg",
+      "code": "B6A7E7CA",
+      "name": "Personal Trip",
+      "currency": "INR",
+      "ownerId": "3wcaYO7vlDRan3xw",
+      "ownerSecretHash": "7e8ba0bceea2716893ffe2a75525363ba459746a2ccf385c9405094b67d9712d",
+      "memberSecrets": {},
+      "createdAt": "2026-09-24T07:14:41.835Z",
+      "members": [
+        {
+          "id": "3wcaYO7vlDRan3xw",
+          "name": "Ajay"
+        }
+      ],
+      "expenses": []
+    }
+  ]
+}
