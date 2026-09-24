@@ -8,13 +8,20 @@
       "currency": "INR",
       "ownerId": "wQT2AoBCVdxWL9nA",
       "ownerSecretHash": "6e14bac255ed61ad8c7093b831bedfc2d214963327b1df1793b07220e9a1443e",
-      "memberSecrets": {},
+      "memberSecrets": {
+        "1ybQBOjvmHqT_olY": "eb9456dc99ccc321cb5002190812f956fba93526158538247228dc70cba8c0e6"
+      },
       "createdAt": "2026-09-24T06:29:00.515Z",
       "members": [
         {
           "id": "wQT2AoBCVdxWL9nA",
           "name": "Ajay",
           "joinedAt": "2026-09-24T06:29:00.515Z"
+        },
+        {
+          "id": "1ybQBOjvmHqT_olY",
+          "name": "Swetha",
+          "joinedAt": "2026-09-24T06:29:49.715Z"
         }
       ],
       "expenses": []
