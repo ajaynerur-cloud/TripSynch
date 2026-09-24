@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: tripsynch-api
+    name: tripsynch
     runtime: node
     rootDir: api
     buildCommand: npm install

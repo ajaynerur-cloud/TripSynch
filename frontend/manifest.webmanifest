@@ -1,7 +1,6 @@
 {
   "name": "TripSynch",
   "short_name": "TripSynch",
-  "description": "Plan together. Spend together. Settle together.",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f4f7f7",
