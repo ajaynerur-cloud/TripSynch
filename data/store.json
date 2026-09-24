@@ -1,22 +1,4 @@
 {
   "version": 1,
-  "trips": [
-    {
-      "id": "gaUl-OK8hz09Hopd",
-      "code": "C77CE68D",
-      "name": "Personal",
-      "currency": "INR",
-      "ownerId": "-vjdeks0K5vcAz7j",
-      "ownerSecretHash": "24114fd9ae8a0637944ac4e42021d58684052039664d34f3370a995a6b3a3ef5",
-      "memberSecrets": {},
-      "createdAt": "2026-09-24T07:36:01.695Z",
-      "members": [
-        {
-          "id": "-vjdeks0K5vcAz7j",
-          "name": "Ajaykumar"
-        }
-      ],
-      "expenses": []
-    }
-  ]
+  "trips": []
 }
