@@ -36,6 +36,18 @@
           ],
           "createdBy": "wQT2AoBCVdxWL9nA",
           "createdAt": "2026-09-24T06:30:13.421Z"
+        },
+        {
+          "id": "XBerW3Qvxot2Piy3",
+          "description": "test",
+          "amount": 2011,
+          "paidBy": "wQT2AoBCVdxWL9nA",
+          "splitAmong": [
+            "wQT2AoBCVdxWL9nA",
+            "1ybQBOjvmHqT_olY"
+          ],
+          "createdBy": "wQT2AoBCVdxWL9nA",
+          "createdAt": "2026-09-24T06:30:27.826Z"
         }
       ]
     }
