@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: tripsynch-api
+    runtime: node
+    rootDir: api
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: GITHUB_OWNER
+        sync: false
+      - key: GITHUB_REPO
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: GITHUB_BRANCH
+        value: main
+      - key: DATA_PATH
+        value: data/store.json
+      - key: ALLOWED_ORIGIN
+        sync: false
