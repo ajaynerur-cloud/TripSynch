@@ -1,4 +1,23 @@
 {
   "version": 1,
-  "trips": []
+  "trips": [
+    {
+      "id": "l13LkaLp5HWyxcdY",
+      "code": "1FB88906",
+      "name": "Test",
+      "currency": "INR",
+      "ownerId": "lSxKa9bK-VTXM829",
+      "ownerSecretHash": "abd5d636689876560c8872cf9d73e7a8b3d91c90aff29d7282453bc08701353c",
+      "memberSecrets": {},
+      "createdAt": "2026-09-24T05:50:09.704Z",
+      "members": [
+        {
+          "id": "lSxKa9bK-VTXM829",
+          "name": "Ajay",
+          "joinedAt": "2026-09-24T05:50:09.704Z"
+        }
+      ],
+      "expenses": []
+    }
+  ]
 }
