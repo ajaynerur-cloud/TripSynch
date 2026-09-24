@@ -357,10 +357,27 @@ function render() {
 
   renderMyPosition(people, settlementPlan);
 
-  $("#paidBy").innerHTML = trip.members.map(member => `
-    <option value="${member.id}" ${member.id === S.mid ? "selected" : ""}>
-      ${esc(member.name)}
-    </option>`).join("");
+  const payerContainer = $("#paidByRadios");
+  const selectedPayer =
+    payerContainer?.querySelector('input[name="paidBy"]:checked')?.value ||
+    payerContainer?.dataset.selectedPayer ||
+    S.mid;
+
+  if (payerContainer) {
+    payerContainer.innerHTML = trip.members.map(member => `
+      <label class="payer-option ${member.id === selectedPayer ? "selected" : ""}">
+        <input
+          type="radio"
+          name="paidBy"
+          value="${member.id}"
+          ${member.id === selectedPayer ? "checked" : ""}
+        >
+        <span class="payer-radio-dot"></span>
+        <span class="payer-name">${esc(member.name)}</span>
+      </label>`).join("");
+
+    payerContainer.dataset.selectedPayer = selectedPayer;
+  }
 
   $("#splitMembers").innerHTML = trip.members.map(member => `
     <label>
@@ -693,7 +710,9 @@ if (expenseForm) {
         body: JSON.stringify({
           description: form.get("description"),
           amount: Number(form.get("amount")),
-          paidBy: form.get("paidBy"),
+          paidBy: document.querySelector(
+            '#paidByRadios input[name="paidBy"]:checked'
+          )?.value || "",
           splitAmong,
           actorId: S.mid
         })
@@ -704,6 +723,21 @@ if (expenseForm) {
     } catch (error) {
       msg(error.message);
     }
+  });
+}
+
+const payerRadioContainer = $("#paidByRadios");
+if (payerRadioContainer) {
+  payerRadioContainer.addEventListener("change", event => {
+    if (!event.target.matches('input[name="paidBy"]')) return;
+
+    payerRadioContainer.dataset.selectedPayer = event.target.value;
+    payerRadioContainer.querySelectorAll(".payer-option").forEach(option => {
+      option.classList.toggle(
+        "selected",
+        option.contains(event.target)
+      );
+    });
   });
 }
 
