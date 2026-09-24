@@ -48,6 +48,18 @@
           ],
           "createdBy": "1vfMIwvwDwjn-UDg",
           "createdAt": "2026-09-24T07:00:06.187Z"
+        },
+        {
+          "id": "YbaQ_SJylSiQzT9x",
+          "description": "test",
+          "amount": 450.56,
+          "paidBy": "UZonL52ydXnG5Yqk",
+          "splitAmong": [
+            "1vfMIwvwDwjn-UDg",
+            "UZonL52ydXnG5Yqk"
+          ],
+          "createdBy": "1vfMIwvwDwjn-UDg",
+          "createdAt": "2026-09-24T07:00:50.491Z"
         }
       ]
     }
