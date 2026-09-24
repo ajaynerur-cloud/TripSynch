@@ -163,25 +163,88 @@ app.get("/api/trips/:id", async (req, res, next) => {
 app.post("/api/trips/:id/expenses", async (req, res, next) => {
   try {
     let trip;
+
     await mutateStore(store => {
       trip = store.trips.find(item => item.id === req.params.id);
-      if (!trip) { const error = new Error("Trip not found"); error.status = 404; throw error; }
+
+      if (!trip) {
+        const error = new Error("Trip not found");
+        error.status = 404;
+        throw error;
+      }
+
       authorize(req, trip);
+
       const description = clean(req.body.description, 100);
       const amount = Number(req.body.amount);
       const paidBy = clean(req.body.paidBy);
-      const splitAmong = Array.isArray(req.body.splitAmong) ? [...new Set(req.body.splitAmong.map(clean))] : [];
-      const memberIds = new Set(trip.members.map(member => member.id));
-      if (!description || !Number.isFinite(amount) || amount <= 0 || !memberIds.has(paidBy) || !splitAmong.length || splitAmong.some(id => !memberIds.has(id))) {
-        const error = new Error("Invalid expense details"); error.status = 400; throw error;
+
+      const splitAmong = Array.isArray(req.body.splitAmong)
+        ? [...new Set(req.body.splitAmong.map(clean))]
+        : [];
+
+      const memberIds = new Set(
+        trip.members.map(member => member.id)
+      );
+
+      console.log("================================");
+      console.log("DESCRIPTION:", description);
+      console.log("AMOUNT:", amount);
+      console.log("PAIDBY:", paidBy);
+      console.log("SPLITAMONG:", splitAmong);
+      console.log("MEMBER IDS:", [...memberIds]);
+
+      console.log("CHECK_DESCRIPTION", !!description);
+      console.log(
+        "CHECK_AMOUNT",
+        Number.isFinite(amount) && amount > 0
+      );
+      console.log(
+        "CHECK_PAIDBY",
+        memberIds.has(paidBy)
+      );
+      console.log(
+        "CHECK_SPLIT",
+        splitAmong.length > 0
+      );
+      console.log(
+        "CHECK_SPLIT_MEMBERS",
+        !splitAmong.some(id => !memberIds.has(id))
+      );
+
+      if (
+        !description ||
+        !Number.isFinite(amount) ||
+        amount <= 0 ||
+        !memberIds.has(paidBy) ||
+        !splitAmong.length ||
+        splitAmong.some(id => !memberIds.has(id))
+      ) {
+        return res.status(400).json({
+          description,
+          amount,
+          paidBy,
+          splitAmong,
+          memberIds: [...memberIds]
+        });
       }
+
       trip.expenses.push({
-        id: makeId(), description, amount: Number(amount.toFixed(2)), paidBy, splitAmong,
-        createdBy: clean(req.body.actorId), createdAt: new Date().toISOString()
+        id: makeId(),
+        description,
+        amount: Number(amount.toFixed(2)),
+        paidBy,
+        splitAmong,
+        createdBy: clean(req.body.actorId),
+        createdAt: new Date().toISOString()
       });
     }, `Add TripSynch expense ${req.params.id}`);
+
     res.status(201).json(publicTrip(trip));
-  } catch (error) { next(error); }
+
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.delete("/api/trips/:id", async (req, res, next) => {
