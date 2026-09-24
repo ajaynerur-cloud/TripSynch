@@ -24,7 +24,20 @@
           "joinedAt": "2026-09-24T05:51:01.967Z"
         }
       ],
-      "expenses": []
+      "expenses": [
+        {
+          "id": "vvZE3EFgJcH-XLVm",
+          "description": "test",
+          "amount": 1200,
+          "paidBy": "lSxKa9bK-VTXM829",
+          "splitAmong": [
+            "lSxKa9bK-VTXM829",
+            "7lV3E69QxHMob6tZ"
+          ],
+          "createdBy": "lSxKa9bK-VTXM829",
+          "createdAt": "2026-09-24T06:16:43.843Z"
+        }
+      ]
     }
   ]
 }
