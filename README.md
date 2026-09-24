@@ -1,15 +1,18 @@
-# TripSynch radio-payer UI update
+# TripSynch Mobile V2
 
-Replace the repository `frontend/` and `docs/` folders with the folders in this package.
+## Publish Pages
+Use repository Settings > Pages > Deploy from a branch > main > /docs.
 
-The update replaces the Paid By dropdown with persistent radio cards. The selected payer is preserved in `data-selected-payer` while the four-second refresh rebuilds the screen.
+## Render
+Create a Blueprint using render.yaml and set the prompted environment values.
 
-## Publish
-
+## Android locally
 ```bash
-git add frontend docs
-git commit -m "Replace payer dropdown with persistent radio buttons"
-git push
+npm install
+npm run android:add
+npm run android:debug
 ```
+APK: `android/app/build/outputs/apk/debug/app-debug.apk`
 
-GitHub Pages serves the `docs/` copy. The service worker cache has been increased to `tripsynch-v4`.
+## Android on GitHub
+Actions > Build Android APK > Run workflow, then download the artifact.
