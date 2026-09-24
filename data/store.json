@@ -34,6 +34,18 @@
           ],
           "createdBy": "3wcaYO7vlDRan3xw",
           "createdAt": "2026-09-24T07:15:35.138Z"
+        },
+        {
+          "id": "BP29E3WxLGPyErQW",
+          "description": "test",
+          "amount": 2100,
+          "paidBy": "ZLgJj25kI41Cl64w",
+          "splitAmong": [
+            "3wcaYO7vlDRan3xw",
+            "ZLgJj25kI41Cl64w"
+          ],
+          "createdBy": "3wcaYO7vlDRan3xw",
+          "createdAt": "2026-09-24T07:15:48.510Z"
         }
       ]
     }
