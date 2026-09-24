@@ -1,3 +1,3 @@
 window.TRIPSYNCH_CONFIG = {
-  API_BASE: "https://YOUR-SERVICE.onrender.com"
+  API_BASE: "https://tripsynch.onrender.com"
 };
