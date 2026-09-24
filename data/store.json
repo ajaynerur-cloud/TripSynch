@@ -22,7 +22,20 @@
           "name": "swetha"
         }
       ],
-      "expenses": []
+      "expenses": [
+        {
+          "id": "HoKw1Knn8PvHm5y2",
+          "description": "test",
+          "amount": 1200,
+          "paidBy": "3wcaYO7vlDRan3xw",
+          "splitAmong": [
+            "3wcaYO7vlDRan3xw",
+            "ZLgJj25kI41Cl64w"
+          ],
+          "createdBy": "3wcaYO7vlDRan3xw",
+          "createdAt": "2026-09-24T07:15:35.138Z"
+        }
+      ]
     }
   ]
 }
