@@ -1,23 +1,4 @@
 {
   "version": 1,
-  "trips": [
-    {
-      "id": "6RPq0m8NA9_975tP",
-      "code": "E1C46119",
-      "name": "Test",
-      "currency": "INR",
-      "ownerId": "CyuuS8xp-LBAzsJh",
-      "ownerSecretHash": "1f2d85752647071ae8d83366d075c59be09a018b485f6068e25f1394f90a7892",
-      "memberSecrets": {},
-      "createdAt": "2026-09-24T06:18:35.703Z",
-      "members": [
-        {
-          "id": "CyuuS8xp-LBAzsJh",
-          "name": "Ajay",
-          "joinedAt": "2026-09-24T06:18:35.703Z"
-        }
-      ],
-      "expenses": []
-    }
-  ]
+  "trips": []
 }
