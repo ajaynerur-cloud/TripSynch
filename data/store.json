@@ -36,6 +36,18 @@
           ],
           "createdBy": "lSxKa9bK-VTXM829",
           "createdAt": "2026-09-24T06:16:43.843Z"
+        },
+        {
+          "id": "BjpvYg16h7NHuO6u",
+          "description": "test",
+          "amount": 2100,
+          "paidBy": "7lV3E69QxHMob6tZ",
+          "splitAmong": [
+            "lSxKa9bK-VTXM829",
+            "7lV3E69QxHMob6tZ"
+          ],
+          "createdBy": "lSxKa9bK-VTXM829",
+          "createdAt": "2026-09-24T06:17:16.047Z"
         }
       ]
     }
