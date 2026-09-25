@@ -17,6 +17,23 @@
         }
       ],
       "expenses": []
+    },
+    {
+      "id": "WWkiBD8Pr0wgterS",
+      "code": "09769C34",
+      "name": "Personal Trip",
+      "currency": "INR",
+      "ownerId": "DOxJaNzBwYWpqXGX",
+      "ownerSecretHash": "16df01540242b9354b1f3ab5f1b0515a2cecd645f92773c106e8d5b8aa1e6b0e",
+      "memberSecrets": {},
+      "createdAt": "2026-09-25T04:50:41.364Z",
+      "members": [
+        {
+          "id": "DOxJaNzBwYWpqXGX",
+          "name": "Ajay"
+        }
+      ],
+      "expenses": []
     }
   ]
 }
