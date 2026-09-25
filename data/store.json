@@ -25,12 +25,18 @@
       "currency": "INR",
       "ownerId": "tUxvzTr8sfx505jw",
       "ownerSecretHash": "f1981d6e505ec6ddaa6e3622a94d09a354c4fa477bc98abd559cb73e823b86ab",
-      "memberSecrets": {},
+      "memberSecrets": {
+        "v0dSiQUnbMbUkXEq": "93e6d0001239e690a8bc24c779e86f2662a08f53c82909a26ea59a45dad2d1b7"
+      },
       "createdAt": "2026-09-25T04:12:58.045Z",
       "members": [
         {
           "id": "tUxvzTr8sfx505jw",
           "name": "Shayeree"
+        },
+        {
+          "id": "v0dSiQUnbMbUkXEq",
+          "name": "Ajay"
         }
       ],
       "expenses": []
