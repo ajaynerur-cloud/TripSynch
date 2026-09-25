@@ -1,1 +1,0 @@
-const C="tripsynch-v5",A=["./","index.html","styles.css","app.js","config.js","manifest.webmanifest"];self.oninstall=e=>e.waitUntil(caches.open(C).then(c=>c.addAll(A)));self.onfetch=e=>e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));
