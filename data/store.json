@@ -51,6 +51,18 @@
           ],
           "createdBy": "tUxvzTr8sfx505jw",
           "createdAt": "2026-09-25T04:13:50.286Z"
+        },
+        {
+          "id": "vx-a_5FJ3flkyjeb",
+          "description": "Food",
+          "amount": 1200,
+          "paidBy": "v0dSiQUnbMbUkXEq",
+          "splitAmong": [
+            "tUxvzTr8sfx505jw",
+            "v0dSiQUnbMbUkXEq"
+          ],
+          "createdBy": "v0dSiQUnbMbUkXEq",
+          "createdAt": "2026-09-25T04:13:51.290Z"
         }
       ]
     }
