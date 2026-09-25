@@ -17,7 +17,19 @@
           "joinedAt": "2026-09-25T17:12:38.933Z"
         }
       ],
-      "expenses": [],
+      "expenses": [
+        {
+          "id": "2QUXCaRsQ894YLVF",
+          "description": "test",
+          "amount": 5000,
+          "paidBy": "cXYirKORUbmDiXu1",
+          "splitAmong": [
+            "cXYirKORUbmDiXu1"
+          ],
+          "createdBy": "cXYirKORUbmDiXu1",
+          "createdAt": "2026-09-25T17:12:49.743Z"
+        }
+      ],
       "settlements": []
     }
   ]
