@@ -33,7 +33,19 @@
           "name": "Ajay"
         }
       ],
-      "expenses": [],
+      "expenses": [
+        {
+          "id": "BUzPIE-8Puf-b83-",
+          "description": "Food",
+          "amount": 2099.98,
+          "paidBy": "gRWm-iPVhNFJJ-YW",
+          "splitAmong": [
+            "gRWm-iPVhNFJJ-YW"
+          ],
+          "createdBy": "gRWm-iPVhNFJJ-YW",
+          "createdAt": "2026-09-25T04:57:10.380Z"
+        }
+      ],
       "settlements": []
     }
   ]
