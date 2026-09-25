@@ -9,5 +9,28 @@
       "createdAt": "2026-09-25T18:13:34.188Z"
     }
   ],
-  "trips": []
+  "trips": [
+    {
+      "id": "OmNKxg73lwvnJPZd",
+      "code": "2925E39E",
+      "name": "Ajaykumar Nerur Muthukrishnan",
+      "currency": "INR",
+      "ownerUserId": "wC_nWgszMFU3NdMW",
+      "ownerId": "83d8AFA0W467pFzy",
+      "createdAt": "2026-09-25T18:13:46.209Z",
+      "members": [
+        {
+          "id": "83d8AFA0W467pFzy",
+          "userId": "wC_nWgszMFU3NdMW",
+          "name": "Ajaykumar Nerur Muthukrishnan",
+          "email": "ajaynerur@gmail.com",
+          "role": "owner",
+          "active": true,
+          "joinedAt": "2026-09-25T18:13:46.209Z"
+        }
+      ],
+      "expenses": [],
+      "settlements": []
+    }
+  ]
 }
