@@ -12,5 +12,4 @@ services:
       - {key: GITHUB_TOKEN, sync: false}
       - {key: GITHUB_BRANCH, value: main}
       - {key: DATA_PATH, value: data/store.json}
-      - {key: PUBLIC_APP_URL, value: https://tripsynch.onrender.com}
-      - {key: APP_SECRET, generateValue: true}
+      - {key: ALLOWED_ORIGIN, sync: false}
