@@ -17,6 +17,23 @@
         }
       ],
       "expenses": []
+    },
+    {
+      "id": "Rl-BfEm2WZw7a7OR",
+      "code": "921DE441",
+      "name": "Kerala",
+      "currency": "INR",
+      "ownerId": "tUxvzTr8sfx505jw",
+      "ownerSecretHash": "f1981d6e505ec6ddaa6e3622a94d09a354c4fa477bc98abd559cb73e823b86ab",
+      "memberSecrets": {},
+      "createdAt": "2026-09-25T04:12:58.045Z",
+      "members": [
+        {
+          "id": "tUxvzTr8sfx505jw",
+          "name": "Shayeree"
+        }
+      ],
+      "expenses": []
     }
   ]
 }
