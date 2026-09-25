@@ -50,6 +50,18 @@
           ],
           "createdBy": "DOxJaNzBwYWpqXGX",
           "createdAt": "2026-09-25T04:50:56.810Z"
+        },
+        {
+          "id": "dg3gGdd1O5kq4RHE",
+          "description": "Food",
+          "amount": 2099.98,
+          "paidBy": "R7lK2jdqyGeuupf-",
+          "splitAmong": [
+            "DOxJaNzBwYWpqXGX",
+            "R7lK2jdqyGeuupf-"
+          ],
+          "createdBy": "DOxJaNzBwYWpqXGX",
+          "createdAt": "2026-09-25T04:51:54.318Z"
         }
       ]
     }
