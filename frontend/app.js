@@ -97,6 +97,8 @@ function model() {
       paidCount: 0,
       coveredForOthers: 0,
       coveredByOthers: 0,
+      settledOut: 0,
+      settledIn: 0,
       items: []
     }])
   );
@@ -130,12 +132,23 @@ function model() {
     }
   }
 
+  for (const settlement of (S.t.settlements || [])) {
+    if (!people[settlement.from] || !people[settlement.to]) continue;
+
+    people[settlement.from].settledOut += Number(settlement.amount || 0);
+    people[settlement.to].settledIn += Number(settlement.amount || 0);
+  }
+
   Object.values(people).forEach(person => {
     person.paid = Number(person.paid.toFixed(2));
     person.share = Number(person.share.toFixed(2));
     person.coveredForOthers = Number(person.coveredForOthers.toFixed(2));
     person.coveredByOthers = Number(person.coveredByOthers.toFixed(2));
-    person.balance = Number((person.paid - person.share).toFixed(2));
+    person.settledOut = Number(person.settledOut.toFixed(2));
+    person.settledIn = Number(person.settledIn.toFixed(2));
+    person.balance = Number(
+      (person.paid - person.share + person.settledOut - person.settledIn).toFixed(2)
+    );
   });
 
   return people;
@@ -233,18 +246,31 @@ function renderMyPosition(people, settlementPlan) {
 
   const paymentSummary = myPayments.length
     ? myPayments.map(payment => {
+        const settleButton = `
+          <button type="button" class="secondary settle-btn"
+            data-from="${payment.from}" data-to="${payment.to}"
+            data-amount="${payment.amount}">
+            Mark as settled
+          </button>`;
+
         if (payment.from === S.mid) {
           return `
-            <div class="share">
-              <span>You pay ${esc(name(payment.to))}</span>
-              <b class="negative">${money(payment.amount)}</b>
+            <div class="settle-row">
+              <div class="share">
+                <span>You pay ${esc(name(payment.to))}</span>
+                <b class="negative">${money(payment.amount)}</b>
+              </div>
+              ${settleButton}
             </div>`;
         }
 
         return `
-          <div class="share">
-            <span>${esc(name(payment.from))} pays you</span>
-            <b class="positive">${money(payment.amount)}</b>
+          <div class="settle-row">
+            <div class="share">
+              <span>${esc(name(payment.from))} pays you</span>
+              <b class="positive">${money(payment.amount)}</b>
+            </div>
+            ${settleButton}
           </div>`;
       }).join("")
     : '<p class="muted">No payment is required for you.</p>';
@@ -592,6 +618,12 @@ function render() {
               </div>
             </div>
 
+            <button type="button" class="secondary settle-btn"
+              data-from="${payment.from}" data-to="${payment.to}"
+              data-amount="${payment.amount}">
+              Mark as settled
+            </button>
+
             <div class="explain">
               <b>How was this calculated?</b>
               <p>
@@ -639,6 +671,23 @@ function render() {
           </article>`;
       }).join("")
     : '<article class="card"><h2>Everyone is settled</h2><p>No payment is required.</p></article>';
+
+  const settlementHistory = $("#settlementHistory");
+  if (settlementHistory) {
+    const settlements = trip.settlements || [];
+    settlementHistory.innerHTML = settlements.length
+      ? settlements.slice().reverse().map(settlement => `
+          <div class="row">
+            <div>
+              <b>${esc(name(settlement.from))} → ${esc(name(settlement.to))}</b>
+              <span class="muted">
+                ${new Date(settlement.createdAt).toLocaleString()}
+              </span>
+            </div>
+            <b>${money(settlement.amount)}</b>
+          </div>`).join("")
+      : '<p class="muted">No settlements recorded yet.</p>';
+  }
 
   const endTripButton = $("#endTrip");
   if (endTripButton) {
@@ -815,6 +864,31 @@ if (endTripButton) {
     }
   });
 }
+
+document.addEventListener("click", async event => {
+  const button = event.target.closest(".settle-btn");
+  if (!button) return;
+
+  button.disabled = true;
+
+  try {
+    await api(`/api/trips/${S.id}/settlements`, {
+      method: "POST",
+      body: JSON.stringify({
+        from: button.dataset.from,
+        to: button.dataset.to,
+        amount: Number(button.dataset.amount),
+        actorId: S.mid
+      })
+    });
+
+    msg("Marked as settled");
+    await load();
+  } catch (error) {
+    button.disabled = false;
+    msg(error.message);
+  }
+});
 
 function poll() {
   clearInterval(S.timer);
