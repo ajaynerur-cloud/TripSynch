@@ -1,36 +1,4 @@
 {
   "version": 5,
-  "trips": [
-    {
-      "id": "zOSU5MmE37Ve4oS4",
-      "code": "328FC873",
-      "name": "Test",
-      "currency": "INR",
-      "ownerId": "F_2sj9CZFWEAljrb",
-      "ownerSecretHash": "0d0746849c851b2872004aae0eb9884f2fa0546505e112d4464184f670c4de21",
-      "memberSecrets": {},
-      "createdAt": "2026-09-25T09:29:49.163Z",
-      "members": [
-        {
-          "id": "F_2sj9CZFWEAljrb",
-          "name": "Ajay",
-          "joinedAt": "2026-09-25T09:29:49.163Z"
-        }
-      ],
-      "expenses": [
-        {
-          "id": "JWgf43ipajgb9gLA",
-          "description": "food",
-          "amount": 3500,
-          "paidBy": "F_2sj9CZFWEAljrb",
-          "splitAmong": [
-            "F_2sj9CZFWEAljrb"
-          ],
-          "createdBy": "F_2sj9CZFWEAljrb",
-          "createdAt": "2026-09-25T09:30:07.187Z"
-        }
-      ],
-      "settlements": []
-    }
-  ]
+  "trips": []
 }
