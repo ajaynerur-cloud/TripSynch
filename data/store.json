@@ -17,6 +17,24 @@
         }
       ],
       "expenses": []
+    },
+    {
+      "id": "O0HOI7R9XXTcSYBd",
+      "code": "EB152F6F",
+      "name": "Personal Trip",
+      "currency": "INR",
+      "ownerId": "gRWm-iPVhNFJJ-YW",
+      "ownerSecretHash": "f347ce542d17d758c75a81a53d7546ce3a2e12b56d4567814a76f591c7507c1a",
+      "memberSecrets": {},
+      "createdAt": "2026-09-25T04:56:57.598Z",
+      "members": [
+        {
+          "id": "gRWm-iPVhNFJJ-YW",
+          "name": "Ajay"
+        }
+      ],
+      "expenses": [],
+      "settlements": []
     }
   ]
 }
