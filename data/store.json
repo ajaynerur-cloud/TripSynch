@@ -1,1 +1,24 @@
-{"version":5,"trips":[]}
+{
+  "version": 5,
+  "trips": [
+    {
+      "id": "CwGfRXUFL1z_FdoU",
+      "code": "5F7CAC50",
+      "name": "Ajaykumar Nerur Muthukrishnan",
+      "currency": "INR",
+      "ownerId": "JNFngNF7hHoha8x-",
+      "ownerSecretHash": "8fc84cf863ee9c341078c5694ed91e6fd23c1da5d76c8bdaa7a07909f65fd059",
+      "memberSecrets": {},
+      "createdAt": "2026-09-25T19:19:27.529Z",
+      "members": [
+        {
+          "id": "JNFngNF7hHoha8x-",
+          "name": "Ajay",
+          "joinedAt": "2026-09-25T19:19:27.529Z"
+        }
+      ],
+      "expenses": [],
+      "settlements": []
+    }
+  ]
+}
