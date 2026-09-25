@@ -17,54 +17,6 @@
         }
       ],
       "expenses": []
-    },
-    {
-      "id": "O0HOI7R9XXTcSYBd",
-      "code": "EB152F6F",
-      "name": "Personal Trip",
-      "currency": "INR",
-      "ownerId": "gRWm-iPVhNFJJ-YW",
-      "ownerSecretHash": "f347ce542d17d758c75a81a53d7546ce3a2e12b56d4567814a76f591c7507c1a",
-      "memberSecrets": {
-        "GzSt_R3jGT3TW84-": "3dfc189203bc1cd571605b609037cca0c61ce39974b13d4c367a58ee18a4846b"
-      },
-      "createdAt": "2026-09-25T04:56:57.598Z",
-      "members": [
-        {
-          "id": "gRWm-iPVhNFJJ-YW",
-          "name": "Ajay"
-        },
-        {
-          "id": "GzSt_R3jGT3TW84-",
-          "name": "Swetha"
-        }
-      ],
-      "expenses": [
-        {
-          "id": "BUzPIE-8Puf-b83-",
-          "description": "Food",
-          "amount": 2099.98,
-          "paidBy": "gRWm-iPVhNFJJ-YW",
-          "splitAmong": [
-            "gRWm-iPVhNFJJ-YW"
-          ],
-          "createdBy": "gRWm-iPVhNFJJ-YW",
-          "createdAt": "2026-09-25T04:57:10.380Z"
-        },
-        {
-          "id": "ejgJ2mBmCDgItO_N",
-          "description": "petrol",
-          "amount": 3000,
-          "paidBy": "GzSt_R3jGT3TW84-",
-          "splitAmong": [
-            "gRWm-iPVhNFJJ-YW",
-            "GzSt_R3jGT3TW84-"
-          ],
-          "createdBy": "gRWm-iPVhNFJJ-YW",
-          "createdAt": "2026-09-25T04:58:14.656Z"
-        }
-      ],
-      "settlements": []
     }
   ]
 }
