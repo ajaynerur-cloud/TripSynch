@@ -63,6 +63,18 @@
           ],
           "createdBy": "v0dSiQUnbMbUkXEq",
           "createdAt": "2026-09-25T04:13:51.290Z"
+        },
+        {
+          "id": "wEgBFF-mVc5cIvOB",
+          "description": "Petrol",
+          "amount": 500,
+          "paidBy": "v0dSiQUnbMbUkXEq",
+          "splitAmong": [
+            "tUxvzTr8sfx505jw",
+            "v0dSiQUnbMbUkXEq"
+          ],
+          "createdBy": "v0dSiQUnbMbUkXEq",
+          "createdAt": "2026-09-25T04:14:04.049Z"
         }
       ]
     }
