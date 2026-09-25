@@ -7,6 +7,13 @@
       "name": "Ajaykumar Nerur Muthukrishnan",
       "passwordHash": "4915c81cab5ba4ad1477fd574eb17ab4:498adcca0606884d358899c10bc6aeec0b3466a04359b33892465561c9ed7b178f9a0bd1b1b39276f35731d4a481b51e61cf6b64ff7900b2a9cf35e1c692b3c3",
       "createdAt": "2026-09-25T18:13:34.188Z"
+    },
+    {
+      "id": "fSp9lTKbtfPbfGhm",
+      "email": "swethamohan87@gmail.com",
+      "name": "Swetha",
+      "passwordHash": "65420446c97b7e7f7bdeec0f520d11a4:f74a8547701f209b886ad4bf6c65824fe8bd698497dc0699a179f3af9f5f40b29b796cff8263b374e673ee67e1c0f0db584f4535f02fe10c7707b7ba7b380dfb",
+      "createdAt": "2026-09-25T18:14:33.980Z"
     }
   ],
   "trips": [
