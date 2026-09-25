@@ -1,1 +1,8 @@
-{"appId":"com.ajaycloud.tripsynch","appName":"TripSynch","webDir":"www"}
+{
+  "appId": "com.ajaycloud.tripsynch",
+  "appName": "TripSynch",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}

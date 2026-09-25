@@ -1,43 +1,4 @@
 {
-  "version": 5,
-  "trips": [
-    {
-      "id": "_0X1Bjx0FcFLCIcw",
-      "code": "375A7B49",
-      "name": "trip",
-      "currency": "INR",
-      "ownerId": "2oQ2xpWiFKrMUYcx",
-      "ownerSecretHash": "e1ca4d55985d5c14df682518710fc9aa37825fd18e9e62d072fc866f04ca9ded",
-      "memberSecrets": {},
-      "createdAt": "2026-09-25T15:35:59.213Z",
-      "members": [
-        {
-          "id": "2oQ2xpWiFKrMUYcx",
-          "name": "ajay",
-          "joinedAt": "2026-09-25T15:35:59.213Z"
-        }
-      ],
-      "expenses": [],
-      "settlements": []
-    },
-    {
-      "id": "pWylfAblELq6DPYm",
-      "code": "AEDA9D7E",
-      "name": "trip",
-      "currency": "INR",
-      "ownerId": "9MG1zItoPt8Engeh",
-      "ownerSecretHash": "130744e42c470fc3abd1f58179ffbc7e70a8471bc77425adf5bfd38fc6fae558",
-      "memberSecrets": {},
-      "createdAt": "2026-09-25T15:35:59.627Z",
-      "members": [
-        {
-          "id": "9MG1zItoPt8Engeh",
-          "name": "ajay",
-          "joinedAt": "2026-09-25T15:35:59.627Z"
-        }
-      ],
-      "expenses": [],
-      "settlements": []
-    }
-  ]
+  "version": 6,
+  "trips": []
 }
