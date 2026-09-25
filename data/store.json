@@ -16,5 +16,28 @@
       "createdAt": "2026-09-25T18:14:33.980Z"
     }
   ],
-  "trips": []
+  "trips": [
+    {
+      "id": "1p7Q-_j_K1pBLIuP",
+      "code": "0C9C1BAF",
+      "name": "Personal Trip",
+      "currency": "INR",
+      "ownerUserId": "wC_nWgszMFU3NdMW",
+      "ownerId": "eRo6HU8U5ufT2w8_",
+      "createdAt": "2026-09-25T18:24:18.940Z",
+      "members": [
+        {
+          "id": "eRo6HU8U5ufT2w8_",
+          "userId": "wC_nWgszMFU3NdMW",
+          "name": "Ajaykumar Nerur Muthukrishnan",
+          "email": "ajaynerur@gmail.com",
+          "role": "owner",
+          "active": true,
+          "joinedAt": "2026-09-25T18:24:18.940Z"
+        }
+      ],
+      "expenses": [],
+      "settlements": []
+    }
+  ]
 }
