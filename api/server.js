@@ -4,188 +4,44 @@ import crypto from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const app = express();
-app.use(express.json({ limit: "500kb" }));
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const frontendDir = path.resolve(__dirname, "../frontend");
+const app=express();app.use(express.json({limit:"500kb"}));
+const __dirname=path.dirname(fileURLToPath(import.meta.url));
+const frontendDir=path.resolve(__dirname,"../frontend");
+const {GITHUB_OWNER,GITHUB_REPO,GITHUB_TOKEN,GITHUB_BRANCH="main",DATA_PATH="data/store.json",PUBLIC_APP_URL="https://tripsynch.onrender.com",APP_SECRET="change-this-in-render",PORT=10000}=process.env;
+const contentsUrl=`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${DATA_PATH}`;
+const githubHeaders={Accept:"application/vnd.github+json",Authorization:`Bearer ${GITHUB_TOKEN}`,"X-GitHub-Api-Version":"2022-11-28","User-Agent":"TripSynch-V7"};
+const id=(n=12)=>crypto.randomBytes(n).toString("base64url"),clean=(v,n=100)=>String(v??"").trim().slice(0,n),error=(m,s=400)=>Object.assign(new Error(m),{status:s});
+const email=v=>clean(v,160).toLowerCase();
+function passwordHash(password,salt=crypto.randomBytes(16).toString("hex")){return `${salt}:${crypto.scryptSync(password,salt,64).toString("hex")}`}
+function passwordValid(password,stored){try{const [salt,key]=stored.split(":");return crypto.timingSafeEqual(Buffer.from(key,"hex"),crypto.scryptSync(password,salt,64))}catch{return false}}
+function signToken(userId){const payload=Buffer.from(JSON.stringify({userId,exp:Date.now()+30*24*60*60*1000})).toString("base64url");const sig=crypto.createHmac("sha256",APP_SECRET).update(payload).digest("base64url");return `${payload}.${sig}`}
+function parseToken(token){try{const [payload,sig]=String(token||"").split(".");const expected=crypto.createHmac("sha256",APP_SECRET).update(payload).digest("base64url");if(!crypto.timingSafeEqual(Buffer.from(sig),Buffer.from(expected)))return null;const data=JSON.parse(Buffer.from(payload,"base64url"));return data.exp>Date.now()?data:null}catch{return null}}
+async function gh(method,url,body){const r=await fetch(url,{method,headers:{...githubHeaders,...(body?{"Content-Type":"application/json"}:{})},body:body?JSON.stringify(body):undefined});if(!r.ok)throw Object.assign(new Error(`GitHub ${method} failed: ${r.status} ${await r.text()}`),{status:r.status});return r.status===204?null:r.json()}
+async function readStore(){try{const x=await gh("GET",`${contentsUrl}?ref=${encodeURIComponent(GITHUB_BRANCH)}&t=${Date.now()}`);const store=JSON.parse(Buffer.from(x.content.replace(/\n/g,""),"base64"));store.version=7;store.users||=[];store.trips||=[];return{store,sha:x.sha}}catch(e){if(e.status===404)return{store:{version:7,users:[],trips:[]},sha:null};throw e}}
+async function writeStore(store,sha,message){await gh("PUT",contentsUrl,{message,branch:GITHUB_BRANCH,content:Buffer.from(JSON.stringify(store,null,2)+"\n").toString("base64"),...(sha?{sha}:{})})}
+async function mutate(change,message){for(let a=1;a<=5;a++){const{store,sha}=await readStore(),out=change(store);try{await writeStore(store,sha,message);return out}catch(e){if(![409,422].includes(e.status)||a===5)throw e;await new Promise(r=>setTimeout(r,200*a))}}}
+async function requireUser(req,res,next){try{const t=parseToken((req.get("authorization")||"").replace(/^Bearer\s+/i,""));if(!t)throw error("Login required",401);const{store}=await readStore();const user=store.users.find(u=>u.id===t.userId);if(!user||user.disabled)throw error("Account not available",401);req.user={id:user.id,email:user.email,name:user.name};next()}catch(e){next(e)}}
+const publicUser=u=>({id:u.id,email:u.email,name:u.name});
+const memberFor=(trip,userId)=>trip.members?.find(m=>(m.userId||m.id)===userId&&m.active!==false);
+function authorizeTrip(trip,user,ownerOnly=false){const member=memberFor(trip,user.id);if(!member||ownerOnly&&trip.ownerUserId!==user.id)throw error(ownerOnly?"Owner authorization required":"You are not an active trip member",403);return member}
+function publicTrip(t){return{id:t.id,code:t.code,name:t.name,currency:t.currency,ownerUserId:t.ownerUserId,ownerId:t.ownerId,createdAt:t.createdAt,members:t.members||[],expenses:t.expenses||[],settlements:t.settlements||[]}}
+const cents=x=>Math.round(Number(x||0)*100);
+function balances(t){const b=Object.fromEntries((t.members||[]).map(m=>[m.id,{id:m.id,balance:0}]));for(const e of t.expenses||[]){if(!b[e.paidBy]||!e.splitAmong?.length)continue;const total=cents(e.amount),base=Math.floor(total/e.splitAmong.length),rem=total-base*e.splitAmong.length;b[e.paidBy].balance+=total;e.splitAmong.forEach((mid,i)=>{if(b[mid])b[mid].balance-=base+(i<rem?1:0)})}for(const s of t.settlements||[]){if(s.status!=="settled")continue;const amount=cents(s.amount);if(b[s.from])b[s.from].balance+=amount;if(b[s.to])b[s.to].balance-=amount}return b}
 
-const {
-  GITHUB_OWNER,
-  GITHUB_REPO,
-  GITHUB_TOKEN,
-  GITHUB_BRANCH = "main",
-  DATA_PATH = "data/store.json",
-  PUBLIC_APP_URL = "https://tripsynch.onrender.com",
-  PORT = 10000
-} = process.env;
-
-for (const key of ["GITHUB_OWNER", "GITHUB_REPO", "GITHUB_TOKEN"]) {
-  if (!process.env[key]) console.warn(`Missing environment variable: ${key}`);
-}
-
-const contentsUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${DATA_PATH}`;
-const githubHeaders = {
-  Accept: "application/vnd.github+json",
-  Authorization: `Bearer ${GITHUB_TOKEN}`,
-  "X-GitHub-Api-Version": "2022-11-28",
-  "User-Agent": "TripSynch-V6"
-};
-
-const makeId = (bytes = 12) => crypto.randomBytes(bytes).toString("base64url");
-const hash = value => crypto.createHash("sha256").update(String(value)).digest("hex");
-const clean = (value, length = 100) => String(value ?? "").trim().slice(0, length);
-const httpError = (message, status = 400) => Object.assign(new Error(message), { status });
-
-async function githubRequest(method, url, body) {
-  const response = await fetch(url, {
-    method,
-    headers: { ...githubHeaders, ...(body ? { "Content-Type": "application/json" } : {}) },
-    body: body ? JSON.stringify(body) : undefined
-  });
-  if (!response.ok) {
-    const detail = await response.text();
-    throw Object.assign(new Error(`GitHub ${method} failed: ${response.status} ${detail}`), { status: response.status });
-  }
-  return response.status === 204 ? null : response.json();
-}
-
-async function readStore() {
-  try {
-    const result = await githubRequest("GET", `${contentsUrl}?ref=${encodeURIComponent(GITHUB_BRANCH)}&t=${Date.now()}`);
-    const content = Buffer.from(result.content.replace(/\n/g, ""), "base64").toString("utf8");
-    const store = JSON.parse(content);
-    store.version = 6;
-    store.trips ||= [];
-    return { store, sha: result.sha };
-  } catch (error) {
-    if (error.status === 404) return { store: { version: 6, trips: [] }, sha: null };
-    throw error;
-  }
-}
-
-async function writeStore(store, sha, message) {
-  await githubRequest("PUT", contentsUrl, {
-    message,
-    branch: GITHUB_BRANCH,
-    content: Buffer.from(`${JSON.stringify(store, null, 2)}\n`).toString("base64"),
-    ...(sha ? { sha } : {})
-  });
-}
-
-async function mutateStore(change, message) {
-  for (let attempt = 1; attempt <= 5; attempt += 1) {
-    const { store, sha } = await readStore();
-    const output = change(store);
-    try {
-      await writeStore(store, sha, message);
-      return output;
-    } catch (error) {
-      if (![409, 422].includes(error.status) || attempt === 5) throw error;
-      await new Promise(resolve => setTimeout(resolve, 200 * attempt));
-    }
-  }
-}
-
-function publicTrip(trip) {
-  return {
-    id: trip.id, code: trip.code, name: trip.name, currency: trip.currency,
-    ownerId: trip.ownerId, createdAt: trip.createdAt,
-    members: trip.members || [], expenses: trip.expenses || [], settlements: trip.settlements || []
-  };
-}
-
-function authorize(req, trip, ownerOnly = false) {
-  const tokenHash = hash(req.get("x-trip-secret") || "");
-  const isOwner = tokenHash === trip.ownerTokenHash;
-  const isMember = Object.values(trip.memberTokenHashes || {}).includes(tokenHash);
-  if ((!isOwner && !isMember) || (ownerOnly && !isOwner)) throw httpError(ownerOnly ? "Owner authorization required" : "Invalid trip authorization", 403);
-}
-
-app.get("/health", (req, res) => res.json({ ok: true, service: "TripSynch API v6", frontend: true, publicAppUrl: PUBLIC_APP_URL }));
-app.get("/api/config", (req, res) => res.json({ apiBase: PUBLIC_APP_URL.replace(/\/$/, ""), appUrl: PUBLIC_APP_URL.replace(/\/$/, "") }));
-
-app.post("/api/trips", async (req, res, next) => {
-  try {
-    const name = clean(req.body.name, 80), ownerName = clean(req.body.ownerName, 60), currency = clean(req.body.currency || "INR", 3).toUpperCase();
-    if (!name || !ownerName || !["INR","USD","EUR","GBP","SGD","AED"].includes(currency)) return res.status(400).json({ error: "Valid trip name, owner name, and currency are required" });
-    const token = makeId(24), memberId = makeId();
-    const trip = { id: makeId(), code: crypto.randomBytes(4).toString("hex").toUpperCase(), name, currency, ownerId: memberId, ownerTokenHash: hash(token), memberTokenHashes: {}, createdAt: new Date().toISOString(), members: [{ id: memberId, name: ownerName, joinedAt: new Date().toISOString() }], expenses: [], settlements: [] };
-    await mutateStore(store => store.trips.push(trip), `TripSynch V6: create ${trip.id}`);
-    return res.status(201).json({ trip: publicTrip(trip), memberId, token });
-  } catch (error) { return next(error); }
-});
-
-app.post("/api/join", async (req, res, next) => {
-  try {
-    const code = clean(req.body.code, 8).toUpperCase(), name = clean(req.body.name, 60);
-    if (!code || !name) return res.status(400).json({ error: "Invite code and name are required" });
-    const memberId = makeId(), token = makeId(24); let trip;
-    await mutateStore(store => {
-      trip = store.trips.find(item => item.code === code);
-      if (!trip) throw httpError("Trip not found", 404);
-      trip.memberTokenHashes ||= {}; trip.members ||= [];
-      trip.memberTokenHashes[memberId] = hash(token);
-      trip.members.push({ id: memberId, name, joinedAt: new Date().toISOString() });
-    }, `TripSynch V6: join ${code}`);
-    return res.json({ trip: publicTrip(trip), memberId, token });
-  } catch (error) { return next(error); }
-});
-
-app.get("/api/trips/:id", async (req, res, next) => {
-  try {
-    const { store } = await readStore(); const trip = store.trips.find(item => item.id === req.params.id);
-    if (!trip) return res.status(404).json({ error: "Trip not found" });
-    authorize(req, trip); res.set("Cache-Control", "no-store"); return res.json(publicTrip(trip));
-  } catch (error) { return next(error); }
-});
-
-app.post("/api/trips/:id/expenses", async (req, res, next) => {
-  try {
-    let trip;
-    await mutateStore(store => {
-      trip = store.trips.find(item => item.id === req.params.id); if (!trip) throw httpError("Trip not found", 404); authorize(req, trip);
-      const description = clean(req.body.description, 100), amount = Number(req.body.amount), paidBy = clean(req.body.paidBy, 100);
-      const splitAmong = Array.isArray(req.body.splitAmong) ? [...new Set(req.body.splitAmong.map(value => clean(value, 100)).filter(Boolean))] : [];
-      const memberIds = new Set(trip.members.map(member => member.id));
-      if (!description || !Number.isFinite(amount) || amount <= 0 || !memberIds.has(paidBy) || !splitAmong.length || splitAmong.some(id => !memberIds.has(id))) throw httpError("Invalid expense details");
-      trip.expenses ||= [];
-      trip.expenses.push({ id: makeId(), description, amount: Number(amount.toFixed(2)), paidBy, splitAmong, createdBy: clean(req.body.actorId, 100), createdAt: new Date().toISOString() });
-    }, `TripSynch V6: expense ${req.params.id}`);
-    return res.status(201).json(publicTrip(trip));
-  } catch (error) { return next(error); }
-});
-
-app.post("/api/trips/:id/settlements", async (req, res, next) => {
-  try {
-    let trip, record;
-    await mutateStore(store => {
-      trip = store.trips.find(item => item.id === req.params.id); if (!trip) throw httpError("Trip not found", 404); authorize(req, trip);
-      const from = clean(req.body.from, 100), to = clean(req.body.to, 100), amount = Number(req.body.amount), ids = new Set(trip.members.map(member => member.id));
-      if (!ids.has(from) || !ids.has(to) || from === to || !Number.isFinite(amount) || amount <= 0) throw httpError("Invalid settlement");
-      trip.settlements ||= []; record = { id: makeId(), from, to, amount: Number(amount.toFixed(2)), status: "settled", settledBy: clean(req.body.actorId, 100), settledAt: new Date().toISOString() }; trip.settlements.push(record);
-    }, `TripSynch V6: settle ${req.params.id}`);
-    return res.status(201).json({ trip: publicTrip(trip), settlement: record });
-  } catch (error) { return next(error); }
-});
-
-app.delete("/api/trips/:id/settlements/:settlementId", async (req, res, next) => {
-  try {
-    let trip;
-    await mutateStore(store => { trip = store.trips.find(item => item.id === req.params.id); if (!trip) throw httpError("Trip not found", 404); authorize(req, trip); const before = (trip.settlements || []).length; trip.settlements = (trip.settlements || []).filter(item => item.id !== req.params.settlementId); if (trip.settlements.length === before) throw httpError("Settlement not found", 404); }, `TripSynch V6: undo settlement ${req.params.id}`);
-    return res.json(publicTrip(trip));
-  } catch (error) { return next(error); }
-});
-
-app.delete("/api/trips/:id", async (req, res, next) => {
-  try {
-    await mutateStore(store => { const index = store.trips.findIndex(item => item.id === req.params.id); if (index < 0) throw httpError("Trip not found", 404); const trip = store.trips[index]; authorize(req, trip, true); if (clean(req.body.actorId, 100) !== trip.ownerId) throw httpError("Only the trip creator can delete this trip", 403); store.trips.splice(index, 1); }, `TripSynch V6: delete ${req.params.id}`);
-    return res.json({ ok: true });
-  } catch (error) { return next(error); }
-});
-
-app.get("/api/qr", async (req, res, next) => { try { const value = clean(req.query.text, 1200); if (!value) return res.status(400).json({ error: "QR text is required" }); return res.type("png").set("Cache-Control", "public,max-age=3600").send(await QRCode.toBuffer(value, { width: 420, margin: 2 })); } catch (error) { return next(error); } });
-
-app.use(express.static(frontendDir, { index: "index.html", maxAge: "1h" }));
-app.get(/^(?!\/api\/).*/, (req, res) => res.sendFile(path.join(frontendDir, "index.html")));
-app.use((error, req, res, next) => { console.error(error); if (res.headersSent) return next(error); return res.status(error.status || 500).json({ error: error.status ? error.message : "Internal server error" }); });
-app.listen(Number(PORT), "0.0.0.0", () => console.log(`TripSynch V6 listening on ${PORT}`));
+app.get("/health",(q,s)=>s.json({ok:true,service:"TripSynch API v7",frontend:true}));
+app.post("/api/auth/signup",async(q,s,n)=>{try{const mail=email(q.body.email),name=clean(q.body.name,60),password=String(q.body.password||"");if(!/^\S+@\S+\.\S+$/.test(mail)||!name||password.length<8)return s.status(400).json({error:"Valid name, email and password of at least 8 characters are required"});let user;await mutate(store=>{if(store.users.some(u=>u.email===mail))throw error("Email is already registered",409);user={id:id(),email:mail,name,passwordHash:passwordHash(password),createdAt:new Date().toISOString()};store.users.push(user)},`TripSynch V7: signup ${mail}`);return s.status(201).json({token:signToken(user.id),user:publicUser(user)})}catch(e){n(e)}});
+app.post("/api/auth/login",async(q,s,n)=>{try{const mail=email(q.body.email),password=String(q.body.password||"");const{store}=await readStore(),user=store.users.find(u=>u.email===mail);if(!user||!passwordValid(password,user.passwordHash))throw error("Invalid email or password",401);return s.json({token:signToken(user.id),user:publicUser(user)})}catch(e){n(e)}});
+app.get("/api/auth/me",requireUser,(q,s)=>s.json({user:q.user}));
+app.get("/api/trips",requireUser,async(q,s,n)=>{try{const{store}=await readStore();return s.json({trips:store.trips.filter(t=>memberFor(t,q.user.id)).map(publicTrip)})}catch(e){n(e)}});
+app.post("/api/trips",requireUser,async(q,s,n)=>{try{const name=clean(q.body.name,80),currency=clean(q.body.currency||"INR",3).toUpperCase();if(!name||!["INR","USD","EUR","GBP","SGD","AED"].includes(currency))return s.status(400).json({error:"Valid trip name and currency required"});const memberId=id(),trip={id:id(),code:crypto.randomBytes(4).toString("hex").toUpperCase(),name,currency,ownerUserId:q.user.id,ownerId:memberId,createdAt:new Date().toISOString(),members:[{id:memberId,userId:q.user.id,name:q.user.name,email:q.user.email,role:"owner",active:true,joinedAt:new Date().toISOString()}],expenses:[],settlements:[]};await mutate(store=>store.trips.push(trip),`TripSynch V7: create ${trip.id}`);return s.status(201).json({trip:publicTrip(trip)})}catch(e){n(e)}});
+app.post("/api/trips/join",requireUser,async(q,s,n)=>{try{const code=clean(q.body.code,8).toUpperCase();let trip;await mutate(store=>{trip=store.trips.find(t=>t.code===code);if(!trip)throw error("Trip not found",404);let m=trip.members.find(x=>(x.userId||x.id)===q.user.id);if(m){if(m.active===false)throw error("This account was removed from the trip",403);return}trip.members.push({id:id(),userId:q.user.id,name:q.user.name,email:q.user.email,role:"member",active:true,joinedAt:new Date().toISOString()})},`TripSynch V7: join ${code}`);return s.json({trip:publicTrip(trip)})}catch(e){n(e)}});
+app.get("/api/trips/:id",requireUser,async(q,s,n)=>{try{const{store}=await readStore(),trip=store.trips.find(t=>t.id===q.params.id);if(!trip)throw error("Trip not found",404);const member=authorizeTrip(trip,q.user);resNoStore(s);return s.json({trip:publicTrip(trip),memberId:member.id,user:q.user})}catch(e){n(e)}});
+function resNoStore(res){res.set("Cache-Control","no-store")}
+app.post("/api/trips/:id/expenses",requireUser,async(q,s,n)=>{try{let trip;await mutate(store=>{trip=store.trips.find(t=>t.id===q.params.id);if(!trip)throw error("Trip not found",404);const actor=authorizeTrip(trip,q.user),description=clean(q.body.description),amount=Number(q.body.amount),paidBy=clean(q.body.paidBy),splitAmong=Array.isArray(q.body.splitAmong)?[...new Set(q.body.splitAmong.map(v=>clean(v)).filter(Boolean))]:[],activeIds=new Set(trip.members.filter(m=>m.active!==false).map(m=>m.id));if(!description||!Number.isFinite(amount)||amount<=0||!activeIds.has(paidBy)||!splitAmong.length||splitAmong.some(x=>!activeIds.has(x)))throw error("Invalid expense details");trip.expenses.push({id:id(),description,amount:+amount.toFixed(2),paidBy,splitAmong,createdBy:actor.id,createdAt:new Date().toISOString()})},`TripSynch V7: expense ${q.params.id}`);return s.status(201).json({trip:publicTrip(trip)})}catch(e){n(e)}});
+app.post("/api/trips/:id/settlements",requireUser,async(q,s,n)=>{try{let trip,record;await mutate(store=>{trip=store.trips.find(t=>t.id===q.params.id);authorizeTrip(trip,q.user);const from=clean(q.body.from),to=clean(q.body.to),amount=Number(q.body.amount),ids=new Set(trip.members.map(m=>m.id));if(!ids.has(from)||!ids.has(to)||from===to||amount<=0)throw error("Invalid settlement");record={id:id(),from,to,amount:+amount.toFixed(2),status:"settled",settledByUserId:q.user.id,settledAt:new Date().toISOString()};trip.settlements.push(record)},`TripSynch V7: settlement ${q.params.id}`);return s.status(201).json({trip:publicTrip(trip),settlement:record})}catch(e){n(e)}});
+app.delete("/api/trips/:id/settlements/:sid",requireUser,async(q,s,n)=>{try{let trip;await mutate(store=>{trip=store.trips.find(t=>t.id===q.params.id);authorizeTrip(trip,q.user);const before=trip.settlements.length;trip.settlements=trip.settlements.filter(x=>x.id!==q.params.sid);if(before===trip.settlements.length)throw error("Settlement not found",404)},`TripSynch V7: undo settlement ${q.params.id}`);return s.json({trip:publicTrip(trip)})}catch(e){n(e)}});
+app.post("/api/trips/:id/members/:memberId/settle-remove",requireUser,async(q,s,n)=>{try{let trip,record=null;await mutate(store=>{trip=store.trips.find(t=>t.id===q.params.id);const owner=authorizeTrip(trip,q.user,true),target=trip.members.find(m=>m.id===q.params.memberId&&m.active!==false);if(!target)throw error("Active member not found",404);if(target.id===owner.id)throw error("Owner cannot be removed");const b=balances(trip),amount=b[target.id]?.balance||0;if(amount!==0){record={id:id(),from:amount<0?target.id:owner.id,to:amount<0?owner.id:target.id,amount:Math.abs(amount)/100,status:"settled",reason:"Settle and remove member",settledByUserId:q.user.id,settledAt:new Date().toISOString()};trip.settlements.push(record)}target.active=false;target.removedAt=new Date().toISOString();target.removedByUserId=q.user.id},`TripSynch V7: settle remove ${q.params.memberId}`);return s.json({trip:publicTrip(trip),settlement:record})}catch(e){n(e)}});
+app.delete("/api/trips/:id/members/:memberId",requireUser,async(q,s,n)=>{try{let trip;await mutate(store=>{trip=store.trips.find(t=>t.id===q.params.id);const owner=authorizeTrip(trip,q.user,true),target=trip.members.find(m=>m.id===q.params.memberId&&m.active!==false);if(!target)throw error("Active member not found",404);if(target.id===owner.id)throw error("Owner cannot be removed");if((balances(trip)[target.id]?.balance||0)!==0)throw error("Settle the member before removal",409);target.active=false;target.removedAt=new Date().toISOString();target.removedByUserId=q.user.id},`TripSynch V7: remove ${q.params.memberId}`);return s.json({trip:publicTrip(trip)})}catch(e){n(e)}});
+app.delete("/api/trips/:id",requireUser,async(q,s,n)=>{try{await mutate(store=>{const i=store.trips.findIndex(t=>t.id===q.params.id);if(i<0)throw error("Trip not found",404);authorizeTrip(store.trips[i],q.user,true);store.trips.splice(i,1)},`TripSynch V7: delete ${q.params.id}`);return s.json({ok:true})}catch(e){n(e)}});
+app.get("/api/qr",async(q,s,n)=>{try{const text=clean(q.query.text,1200);if(!text)throw error("QR text required");return s.type("png").send(await QRCode.toBuffer(text,{width:420,margin:2}))}catch(e){n(e)}});
+app.use(express.static(frontendDir,{index:"index.html",maxAge:"1h"}));app.get(/^(?!\/api\/).*/,(q,s)=>s.sendFile(path.join(frontendDir,"index.html")));app.use((e,q,s,n)=>{console.error(e);if(s.headersSent)return n(e);s.status(e.status||500).json({error:e.status?e.message:"Internal server error"})});app.listen(Number(PORT),"0.0.0.0",()=>console.log(`TripSynch V7 listening on ${PORT}`));

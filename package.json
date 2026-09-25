@@ -1,6 +1,6 @@
 {
-  "name": "tripsynch-v6",
-  "version": "6.0.0",
+  "name": "tripsynch-v7",
+  "version": "7.0.0",
   "private": true,
   "scripts": {
     "sync:web": "rm -rf www && cp -R frontend www",
