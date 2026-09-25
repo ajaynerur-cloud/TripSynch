@@ -1,1 +1,290 @@
-const C=window.TRIPSYNCH_CONFIG,$=s=>document.querySelector(s),S={id:localStorage.tid||'',mid:localStorage.mid||'',token:localStorage.tripToken||'',t:null,payer:'',timer:null};const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),fmt=x=>x?new Date(x).toLocaleString():'Date unavailable',toast=x=>{const e=$('#toast');e.textContent=x;e.className='on';setTimeout(()=>e.className='',2200)};async function api(path,opt={}){const r=await fetch(C.API_BASE.replace(/\/$/,'')+path,{...opt,headers:{'Content-Type':'application/json','x-trip-secret':S.token,...opt.headers}}),d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||`HTTP ${r.status}`);return d}function save(d){S.id=d.trip.id;S.mid=d.memberId;S.token=d.token;localStorage.tid=S.id;localStorage.mid=S.mid;localStorage.tripToken=S.token}const name=id=>S.t.members.find(x=>x.id===id)?.name||'Unknown',money=n=>new Intl.NumberFormat(undefined,{style:'currency',currency:S.t.currency}).format(+n||0),cents=x=>Math.round((+x||0)*100);function balanceModel(){const b=Object.fromEntries(S.t.members.map(m=>[m.id,{...m,paid:0,share:0,count:0}]));for(const e of S.t.expenses){const total=cents(e.amount),base=Math.floor(total/e.splitAmong.length),rem=total-base*e.splitAmong.length;b[e.paidBy].paid+=total;b[e.paidBy].count++;e.splitAmong.forEach((id,i)=>b[id].share+=base+(i<rem?1:0))}for(const x of S.t.settlements||[]){if(x.status!=='settled')continue;const a=cents(x.amount);b[x.from].paid+=a;b[x.to].paid-=a}Object.values(b).forEach(x=>x.balance=x.paid-x.share);return b}function plans(b){const d=Object.values(b).filter(x=>x.balance<0).map(x=>({id:x.id,v:-x.balance})),c=Object.values(b).filter(x=>x.balance>0).map(x=>({id:x.id,v:x.balance})),out=[];for(let i=0,j=0;i<d.length&&j<c.length;){const a=Math.min(d[i].v,c[j].v);out.push({from:d[i].id,to:c[j].id,amount:a/100,beforeDebt:d[i].v/100,beforeCredit:c[j].v/100});d[i].v-=a;c[j].v-=a;if(d[i].v<1)i++;if(c[j].v<1)j++}return out}async function load(){if(!S.id)return;try{S.t=await api(`/api/trips/${S.id}`);render()}catch(e){toast(e.message)}}function render(){welcome.hidden=true;app.hidden=false;title.textContent=S.t.name;sync.textContent=`Code ${S.t.code} · ${new Date().toLocaleTimeString()}`;const b=balanceModel(),p=plans(b),me=b[S.mid],total=S.t.expenses.reduce((s,e)=>s+e.amount,0);stats.innerHTML=`<div class=stat>Total<b>${money(total)}</b></div><div class=stat>Members<b>${S.t.members.length}</b></div><div class=stat>Expenses<b>${S.t.expenses.length}</b></div><div class=stat>Open settlements<b>${p.length}</b></div>`;mine.innerHTML=me?`<article><h2>My position</h2><div class=metrics><div class=metric>Paid<b>${money(me.paid/100)}</b></div><div class=metric>Share<b>${money(me.share/100)}</b></div><div class=metric>Balance<b class=${me.balance>=0?'positive':'negative'}>${money(me.balance/100)}</b></div><div class=metric>Status<b>${me.balance>0?'Receive':me.balance<0?'Pay':'Settled'}</b></div></div></article>`:'';S.payer=document.querySelector('[name=paidBy]:checked')?.value||S.payer||S.mid;payers.innerHTML=S.t.members.map(m=>`<label class="choice ${m.id===S.payer?'selected':''}"><input type=radio name=paidBy value="${m.id}" ${m.id===S.payer?'checked':''}>${esc(m.name)}</label>`).join('');splits.innerHTML=S.t.members.map(m=>`<label class=choice><input type=checkbox value="${m.id}" checked>${esc(m.name)}</label>`).join('');expenseList.innerHTML=S.t.expenses.slice().reverse().map(e=>`<div class=row><span><b>${esc(e.description)}</b><small>Paid by ${esc(name(e.paidBy))}</small><span class=date>Created ${fmt(e.createdAt)}</span></span><b>${money(e.amount)}</b></div>`).join('')||'<p>No expenses yet.</p>';peopleList.innerHTML=Object.values(b).map(x=>`<article><h2>${esc(x.name)}</h2><div class=metrics><div class=metric>Paid<b>${money(x.paid/100)}</b></div><div class=metric>Share<b>${money(x.share/100)}</b></div><div class=metric>Expenses paid<b>${x.count}</b></div><div class=metric>Balance<b>${money(x.balance/100)}</b></div></div><div class=why>${x.balance>0?`Receives ${money(x.balance/100)} because payments exceed allocated shares.`:x.balance<0?`Pays ${money(-x.balance/100)} because allocated shares exceed payments.`:'Fully settled.'}</div></article>`).join('');detailList.innerHTML=S.t.expenses.map((e,i)=>{const total=cents(e.amount),base=Math.floor(total/e.splitAmong.length),rem=total-base*e.splitAmong.length,shares=e.splitAmong.map((id,j)=>({id,amount:(base+(j<rem?1:0))/100}));return `<article><small>EXPENSE ${i+1}</small><h2>${esc(e.description)}</h2><b>${money(e.amount)} paid by ${esc(name(e.paidBy))}</b><p class=date>Created ${fmt(e.createdAt)}</p>${shares.map(x=>`<div class=share><span>${esc(name(x.id))}'s share</span><b>${money(x.amount)}</b></div>`).join('')}<div class=why>${shares.filter(x=>x.id!==e.paidBy).map(x=>`${esc(name(x.id))} owes ${esc(name(e.paidBy))} ${money(x.amount)}`).join('; ')||'No other member owes for this expense.'}</div></article>`}).join('')||'<article>No details yet.</article>';settleList.innerHTML=p.map(x=>`<div class=payment><b>${esc(name(x.from))} pays ${esc(name(x.to))} ${money(x.amount)}</b><div class=why>${esc(name(x.from))} owes ${money(x.beforeDebt)} and ${esc(name(x.to))} should receive ${money(x.beforeCredit)}. The smaller outstanding balance is suggested.</div><button data-settle="${x.from}|${x.to}|${x.amount}">Mark settled</button></div>`).join('')||'<div class=settled>Everyone is settled.</div>';history.innerHTML=(S.t.settlements||[]).slice().reverse().map(x=>`<div class=settled><b>${esc(name(x.from))} paid ${esc(name(x.to))} ${money(x.amount)}</b><small>${fmt(x.settledAt)}</small><button data-undo="${x.id}" class=secondary>Undo</button></div>`).join('')||'<p>No completed settlements.</p>';end.disabled=S.mid!==S.t.ownerId}document.addEventListener('change',e=>{if(e.target.name==='paidBy')S.payer=e.target.value});createForm.onsubmit=async e=>{e.preventDefault();try{const d=await api('/api/trips',{method:'POST',body:JSON.stringify(Object.fromEntries(new FormData(e.target)))});save(d);load();poll()}catch(x){toast(x.message)}};joinForm.onsubmit=async e=>{e.preventDefault();try{const d=await api('/api/join',{method:'POST',body:JSON.stringify(Object.fromEntries(new FormData(e.target)))});save(d);load();poll()}catch(x){toast(x.message)}};expenseForm.onsubmit=async e=>{e.preventDefault();try{const f=new FormData(e.target),splitAmong=[...splits.querySelectorAll(':checked')].map(x=>x.value);await api(`/api/trips/${S.id}/expenses`,{method:'POST',body:JSON.stringify({description:f.get('description'),amount:+f.get('amount'),paidBy:S.payer,splitAmong,actorId:S.mid})});e.target.reset();load()}catch(x){toast(x.message)}};settleList.onclick=async e=>{if(!e.target.dataset.settle)return;const[from,to,amount]=e.target.dataset.settle.split('|');if(!confirm(`Mark ${name(from)} paying ${name(to)} ${money(amount)} as settled?`))return;await api(`/api/trips/${S.id}/settlements`,{method:'POST',body:JSON.stringify({from,to,amount:+amount,actorId:S.mid})});load()};history.onclick=async e=>{if(!e.target.dataset.undo)return;if(confirm('Undo this settlement?')){await api(`/api/trips/${S.id}/settlements/${e.target.dataset.undo}`,{method:'DELETE'});load()}};document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-mode]').forEach(x=>x.classList.toggle('active',x===b));createForm.hidden=b.dataset.mode!=='create';joinForm.hidden=b.dataset.mode!=='join'});document.querySelector('nav').onclick=e=>{if(!e.target.dataset.tab)return;document.querySelectorAll('.panel').forEach(x=>x.hidden=true);$('#'+e.target.dataset.tab).hidden=false;document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x===e.target))};function inviteUrl(){return `${C.APP_URL.replace(/\/$/,'')}?join=${encodeURIComponent(S.t.code)}`}invite.onclick=()=>{link.value=inviteUrl();qr.src=`${C.API_BASE.replace(/\/$/,'')}/api/qr?text=${encodeURIComponent(link.value)}`;dlg.showModal()};shareInvite.onclick=async()=>{const url=inviteUrl();if(navigator.share)await navigator.share({title:'Join my TripSynch trip',text:`Join ${S.t.name}`,url});else{await navigator.clipboard.writeText(url);toast('Invite link copied')}};copyInvite.onclick=async()=>{await navigator.clipboard.writeText(link.value);toast('Invite link copied')};close.onclick=()=>dlg.close();leave.onclick=()=>{['tid','mid','tripToken'].forEach(k=>localStorage.removeItem(k));location.href='/'};end.onclick=async()=>{if(confirm('Delete this trip?')){await api(`/api/trips/${S.id}`,{method:'DELETE',body:JSON.stringify({actorId:S.mid})});leave.click()}};function poll(){clearInterval(S.timer);S.timer=setInterval(load,4000)}const joinCode=new URLSearchParams(location.search).get('join');if(joinCode){document.querySelector('[data-mode=join]').click();joinForm.code.value=joinCode}if(S.id){load();poll()}if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js');
+const C = window.TRIPSYNCH_CONFIG,
+    $ = s => document.querySelector(s),
+    S = {
+        id: localStorage.tid || '',
+        mid: localStorage.mid || '',
+        token: localStorage.tripToken || '',
+        t: null,
+        payer: '',
+        timer: null
+    };
+const esc = x => String(x).replace(/[&<>"']/g, c => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    } [c])),
+    fmt = x => x ? new Date(x).toLocaleString() : 'Date unavailable',
+    toast = x => {
+        const e = $('#toast');
+        e.textContent = x;
+        e.className = 'on';
+        setTimeout(() => e.className = '', 2200)
+    };
+async function api(path, opt = {}) {
+    const r = await fetch(C.API_BASE.replace(/\/$/, '') + path, {
+            ...opt,
+            headers: {
+                'Content-Type': 'application/json',
+                'x-trip-secret': S.token,
+                ...opt.headers
+            }
+        }),
+        d = await r.json().catch(() => ({}));
+    if (!r.ok) throw Error(d.error || `HTTP ${r.status}`);
+    return d
+}
+
+function save(d) {
+    S.id = d.trip.id;
+    S.mid = d.memberId;
+    S.token = d.token;
+    localStorage.tid = S.id;
+    localStorage.mid = S.mid;
+    localStorage.tripToken = S.token
+}
+const name = id => S.t.members.find(x => x.id === id)?.name || 'Unknown',
+    money = n => new Intl.NumberFormat(undefined, {
+        style: 'currency',
+        currency: S.t.currency
+    }).format(+n || 0),
+    cents = x => Math.round((+x || 0) * 100);
+
+function balanceModel() {
+    const b = Object.fromEntries(S.t.members.map(m => [m.id, {
+        ...m,
+        paid: 0,
+        share: 0,
+        count: 0
+    }]));
+    for (const e of S.t.expenses) {
+        const total = cents(e.amount),
+            base = Math.floor(total / e.splitAmong.length),
+            rem = total - base * e.splitAmong.length;
+        b[e.paidBy].paid += total;
+        b[e.paidBy].count++;
+        e.splitAmong.forEach((id, i) => b[id].share += base + (i < rem ? 1 : 0))
+    }
+    for (const x of S.t.settlements || []) {
+        if (x.status !== 'settled') continue;
+        const a = cents(x.amount);
+        b[x.from].paid += a;
+        b[x.to].paid -= a
+    }
+    Object.values(b).forEach(x => x.balance = x.paid - x.share);
+    return b
+}
+
+function plans(b) {
+    const d = Object.values(b).filter(x => x.balance < 0).map(x => ({
+            id: x.id,
+            v: -x.balance
+        })),
+        c = Object.values(b).filter(x => x.balance > 0).map(x => ({
+            id: x.id,
+            v: x.balance
+        })),
+        out = [];
+    for (let i = 0, j = 0; i < d.length && j < c.length;) {
+        const a = Math.min(d[i].v, c[j].v);
+        out.push({
+            from: d[i].id,
+            to: c[j].id,
+            amount: a / 100,
+            beforeDebt: d[i].v / 100,
+            beforeCredit: c[j].v / 100
+        });
+        d[i].v -= a;
+        c[j].v -= a;
+        if (d[i].v < 1) i++;
+        if (c[j].v < 1) j++
+    }
+    return out
+}
+async function load() {
+    if (!S.id) return;
+    try {
+        S.t = await api(`/api/trips/${S.id}`);
+        render()
+    } catch (e) {
+        toast(e.message)
+    }
+}
+
+function render() {
+    welcome.hidden = true;
+    app.hidden = false;
+    title.textContent = S.t.name;
+    sync.textContent = `Code ${S.t.code} · ${new Date().toLocaleTimeString()}`;
+    const b = balanceModel(),
+        p = plans(b),
+        me = b[S.mid],
+        total = S.t.expenses.reduce((s, e) => s + e.amount, 0);
+    stats.innerHTML = `<div class=stat>Total<b>${money(total)}</b></div><div class=stat>Members<b>${S.t.members.length}</b></div><div class=stat>Expenses<b>${S.t.expenses.length}</b></div><div class=stat>Open settlements<b>${p.length}</b></div>`;
+    mine.innerHTML = me ? `<article><h2>My position</h2><div class=metrics><div class=metric>Paid<b>${money(me.paid/100)}</b></div><div class=metric>Share<b>${money(me.share/100)}</b></div><div class=metric>Balance<b class=${me.balance>=0?'positive':'negative'}>${money(me.balance/100)}</b></div><div class=metric>Status<b>${me.balance>0?'Receive':me.balance<0?'Pay':'Settled'}</b></div></div></article>` : '';
+    S.payer = document.querySelector('[name=paidBy]:checked')?.value || S.payer || S.mid;
+    payers.innerHTML = S.t.members.map(m => `<label class="choice ${m.id===S.payer?'selected':''}"><input type=radio name=paidBy value="${m.id}" ${m.id===S.payer?'checked':''}>${esc(m.name)}</label>`).join('');
+    splits.innerHTML = S.t.members.map(m => `<label class=choice><input type=checkbox value="${m.id}" checked>${esc(m.name)}</label>`).join('');
+    expenseList.innerHTML = S.t.expenses.slice().reverse().map(e => `<div class=row><span><b>${esc(e.description)}</b><small>Paid by ${esc(name(e.paidBy))}</small><span class=date>Created ${fmt(e.createdAt)}</span></span><b>${money(e.amount)}</b></div>`).join('') || '<p>No expenses yet.</p>';
+    peopleList.innerHTML = Object.values(b).map(x => `<article><h2>${esc(x.name)}</h2><div class=metrics><div class=metric>Paid<b>${money(x.paid/100)}</b></div><div class=metric>Share<b>${money(x.share/100)}</b></div><div class=metric>Expenses paid<b>${x.count}</b></div><div class=metric>Balance<b>${money(x.balance/100)}</b></div></div><div class=why>${x.balance>0?`Receives ${money(x.balance/100)} because payments exceed allocated shares.`:x.balance<0?`Pays ${money(-x.balance/100)} because allocated shares exceed payments.`:'Fully settled.'}</div></article>`).join('');
+    detailList.innerHTML = S.t.expenses.map((e, i) => {
+        const total = cents(e.amount),
+            base = Math.floor(total / e.splitAmong.length),
+            rem = total - base * e.splitAmong.length,
+            shares = e.splitAmong.map((id, j) => ({
+                id,
+                amount: (base + (j < rem ? 1 : 0)) / 100
+            }));
+        return `<article><small>EXPENSE ${i+1}</small><h2>${esc(e.description)}</h2><b>${money(e.amount)} paid by ${esc(name(e.paidBy))}</b><p class=date>Created ${fmt(e.createdAt)}</p>${shares.map(x=>`<div class=share><span>${esc(name(x.id))}'s share</span><b>${money(x.amount)}</b></div>`).join('')}<div class=why>${shares.filter(x=>x.id!==e.paidBy).map(x=>`${esc(name(x.id))} owes ${esc(name(e.paidBy))} ${money(x.amount)}`).join('; ')||'No other member owes for this expense.'}</div></article>`
+    }).join('') || '<article>No details yet.</article>';
+    settleList.innerHTML = p.map(x => `<div class=payment><b>${esc(name(x.from))} pays ${esc(name(x.to))} ${money(x.amount)}</b><div class=why>${esc(name(x.from))} owes ${money(x.beforeDebt)} and ${esc(name(x.to))} should receive ${money(x.beforeCredit)}. The smaller outstanding balance is suggested.</div><button data-settle="${x.from}|${x.to}|${x.amount}">Mark settled</button></div>`).join('') || '<div class=settled>Everyone is settled.</div>';
+    history.innerHTML = (S.t.settlements || []).slice().reverse().map(x => `<div class=settled><b>${esc(name(x.from))} paid ${esc(name(x.to))} ${money(x.amount)}</b><small>${fmt(x.settledAt)}</small><button data-undo="${x.id}" class=secondary>Undo</button></div>`).join('') || '<p>No completed settlements.</p>';
+    end.disabled = S.mid !== S.t.ownerId
+}
+document.addEventListener('change', e => {
+    if (e.target.name === 'paidBy') S.payer = e.target.value
+});
+createForm.onsubmit = async e => {
+    e.preventDefault();
+    try {
+        const d = await api('/api/trips', {
+            method: 'POST',
+            body: JSON.stringify(Object.fromEntries(new FormData(e.target)))
+        });
+        save(d);
+        load();
+        poll()
+    } catch (x) {
+        toast(x.message)
+    }
+};
+joinForm.onsubmit = async e => {
+    e.preventDefault();
+    try {
+        const d = await api('/api/join', {
+            method: 'POST',
+            body: JSON.stringify(Object.fromEntries(new FormData(e.target)))
+        });
+        save(d);
+        load();
+        poll()
+    } catch (x) {
+        toast(x.message)
+    }
+};
+expenseForm.onsubmit = async e => {
+    e.preventDefault();
+    try {
+        const f = new FormData(e.target),
+            splitAmong = [...splits.querySelectorAll(':checked')].map(x => x.value);
+        await api(`/api/trips/${S.id}/expenses`, {
+            method: 'POST',
+            body: JSON.stringify({
+                description: f.get('description'),
+                amount: +f.get('amount'),
+                paidBy: S.payer,
+                splitAmong,
+                actorId: S.mid
+            })
+        });
+        e.target.reset();
+        load()
+    } catch (x) {
+        toast(x.message)
+    }
+};
+settleList.onclick = async e => {
+    if (!e.target.dataset.settle) return;
+    const [from, to, amount] = e.target.dataset.settle.split('|');
+    if (!confirm(`Mark ${name(from)} paying ${name(to)} ${money(amount)} as settled?`)) return;
+    await api(`/api/trips/${S.id}/settlements`, {
+        method: 'POST',
+        body: JSON.stringify({
+            from,
+            to,
+            amount: +amount,
+            actorId: S.mid
+        })
+    });
+    load()
+};
+history.onclick = async e => {
+    if (!e.target.dataset.undo) return;
+    if (confirm('Undo this settlement?')) {
+        await api(`/api/trips/${S.id}/settlements/${e.target.dataset.undo}`, {
+            method: 'DELETE'
+        });
+        load()
+    }
+};
+document.querySelectorAll('[data-mode]').forEach(b => b.onclick = () => {
+    document.querySelectorAll('[data-mode]').forEach(x => x.classList.toggle('active', x === b));
+    createForm.hidden = b.dataset.mode !== 'create';
+    joinForm.hidden = b.dataset.mode !== 'join'
+});
+document.querySelector('nav').onclick = e => {
+    if (!e.target.dataset.tab) return;
+    document.querySelectorAll('.panel').forEach(x => x.hidden = true);
+    $('#' + e.target.dataset.tab).hidden = false;
+    document.querySelectorAll('nav button').forEach(x => x.classList.toggle('active', x === e.target))
+};
+
+function inviteUrl() {
+    return `${C.APP_URL.replace(/\/$/,'')}?join=${encodeURIComponent(S.t.code)}`
+}
+invite.onclick = () => {
+    link.value = inviteUrl();
+    qr.src = `${C.API_BASE.replace(/\/$/,'')}/api/qr?text=${encodeURIComponent(link.value)}`;
+    dlg.showModal()
+};
+shareInvite.onclick = async () => {
+    const url = inviteUrl();
+    if (navigator.share) await navigator.share({
+        title: 'Join my TripSynch trip',
+        text: `Join ${S.t.name}`,
+        url
+    });
+    else {
+        await navigator.clipboard.writeText(url);
+        toast('Invite link copied')
+    }
+};
+copyInvite.onclick = async () => {
+    await navigator.clipboard.writeText(link.value);
+    toast('Invite link copied')
+};
+document.getElementById('close')
+  .addEventListener('click', () => {
+      document.getElementById('dlg').close();
+  });
+leave.onclick = () => {
+    ['tid', 'mid', 'tripToken'].forEach(k => localStorage.removeItem(k));
+    location.href = '/'
+};
+end.onclick = async () => {
+    if (confirm('Delete this trip?')) {
+        await api(`/api/trips/${S.id}`, {
+            method: 'DELETE',
+            body: JSON.stringify({
+                actorId: S.mid
+            })
+        });
+        leave.click()
+    }
+};
+
+function poll() {
+    clearInterval(S.timer);
+    S.timer = setInterval(load, 4000)
+}
+const joinCode = new URLSearchParams(location.search).get('join');
+if (joinCode) {
+    document.querySelector('[data-mode=join]').click();
+    joinForm.code.value = joinCode
+}
+if (S.id) {
+    load();
+    poll()
+}
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
