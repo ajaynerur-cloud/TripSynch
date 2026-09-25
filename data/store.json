@@ -39,7 +39,20 @@
           "name": "Ajay"
         }
       ],
-      "expenses": []
+      "expenses": [
+        {
+          "id": "wSgTpPRo7yQWhy8Y",
+          "description": "Food",
+          "amount": 20000,
+          "paidBy": "tUxvzTr8sfx505jw",
+          "splitAmong": [
+            "tUxvzTr8sfx505jw",
+            "v0dSiQUnbMbUkXEq"
+          ],
+          "createdBy": "tUxvzTr8sfx505jw",
+          "createdAt": "2026-09-25T04:13:50.286Z"
+        }
+      ]
     }
   ]
 }
