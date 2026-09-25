@@ -62,25 +62,6 @@
         }
       ],
       "settlements": []
-    },
-    {
-      "id": "LVoLW1sXSb_45T9F",
-      "code": "C6613B39",
-      "name": "Ajaykumar Nerur Muthukrishnan",
-      "currency": "INR",
-      "ownerId": "gMdW6g7OuAdEH5kz",
-      "ownerTokenHash": "0854ac5e2b41ace78de4c9ffdf622bbf2c878be6f9e1320a080cfb6884ee32fa",
-      "memberTokenHashes": {},
-      "createdAt": "2026-09-25T17:32:27.533Z",
-      "members": [
-        {
-          "id": "gMdW6g7OuAdEH5kz",
-          "name": "Ajay",
-          "joinedAt": "2026-09-25T17:32:27.533Z"
-        }
-      ],
-      "expenses": [],
-      "settlements": []
     }
   ]
 }
