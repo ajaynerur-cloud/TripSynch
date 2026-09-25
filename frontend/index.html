@@ -1,1 +1,134 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#075E55"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="icon" href="assets/favicon-32.png"><link rel="apple-touch-icon" href="assets/apple-touch-icon.png"><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css"><title>TripSynch V8</title></head><body><section id="welcome"><div class="welcome-brand"><img src="assets/icon-192.png" alt="TripSynch"><div><h1>TripSynch</h1><p>Plan · Share · Travel together</p></div></div><form id="createForm"><h2>Create</h2><input name="name" placeholder="Trip" required><input name="ownerName" placeholder="Your name" required><select name="currency"><option>INR</option><option>USD</option><option>EUR</option></select><button>Create</button></form><form id="joinForm"><h2>Join</h2><input name="code" placeholder="Code" required><input name="name" placeholder="Your name" required><button>Join</button></form></section><section id="app" hidden><header><div class="header-brand"><img src="assets/icon-192.png" alt=""><div><small>ACTIVE TRIP</small><h1 id="title"></h1><p id="sync"></p></div></div><button id="invite">Invite</button></header><main><div id="stats"></div><div id="mine"></div><section id="expenses" class="panel"><article><h2>Add expense</h2><form id="expenseForm"><input name="description" placeholder="Description" required><input name="amount" type="number" step=".01" min=".01" placeholder="Amount" required><small>Date and time are recorded automatically.</small><fieldset><legend>Who paid?</legend><div id="payers"></div></fieldset><fieldset><legend>Split among</legend><div id="splits"></div></fieldset><button>Add expense</button></form></article><article><h2>Expenses</h2><div id="expenseList"></div></article></section><section id="people" class="panel" hidden><div id="peopleList"></div></section><section id="details" class="panel" hidden><div id="detailList"></div></section><section id="settle" class="panel" hidden><article><h2>Settle</h2><div id="settleList"></div><h2>History</h2><div id="history"></div></article></section><section id="settings" class="panel" hidden><article><button id="leave">Leave</button><button id="end">Delete trip</button></article></section></main><nav><button data-tab="expenses">Expenses</button><button data-tab="people">People</button><button data-tab="details">Details</button><button data-tab="settle">Settle</button><button data-tab="settings">Settings</button></nav></section><dialog id="dlg"><img id="qr"><input id="link" readonly><button id="close">Close</button></dialog><div id="toast"></div><script src="config.js"></script><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#075e55">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <link rel="manifest" href="manifest.webmanifest?v=10.0.0">
+  <link rel="icon" href="/assets/icons/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+  <meta name="application-name" content="TripSynch">
+  <meta name="apple-mobile-web-app-title" content="TripSynch">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="msapplication-TileColor" content="#075e55">
+  <meta name="msapplication-TileImage" content="/assets/icons/icon-144.png">
+  <link rel="stylesheet" href="styles.css?v=10.0.0">
+  <title>TripSynch</title>
+</head>
+<body>
+  <section id="authScreen" class="auth-shell">
+    <img class="brand-logo" src="/assets/icons/icon-192.png" alt="TripSynch">
+    <h1>TripSynch</h1>
+    <p>Sign in before creating or joining a trip.</p>
+    <div class="segmented">
+      <button type="button" class="active" data-auth-mode="login">Login</button>
+      <button type="button" data-auth-mode="signup">Create account</button>
+    </div>
+    <form id="loginForm" class="card">
+      <h2>Welcome back</h2>
+      <label>Email<input name="email" type="email" autocomplete="email" required></label>
+      <label>Password<input name="password" type="password" autocomplete="current-password" minlength="8" required></label>
+      <button>Login</button>
+    </form>
+    <form id="signupForm" class="card" hidden>
+      <h2>Create account</h2>
+      <label>Name<input name="name" autocomplete="name" required></label>
+      <label>Email<input name="email" type="email" autocomplete="email" required></label>
+      <label>Password<input name="password" type="password" autocomplete="new-password" minlength="8" required></label>
+      <small>Use at least 8 characters.</small>
+      <button>Create account</button>
+    </form>
+  </section>
+
+  <section id="homeScreen" class="app-shell" hidden>
+    <header class="home-header">
+      <div class="header-brand"><img src="/assets/icons/icon-64.png" alt=""><div><small>TRIPSYNCH V10</small><h1>My trips</h1><p id="signedInAs"></p></div></div>
+      <button type="button" id="homeLogoutButton" class="header-button">Logout</button>
+    </header>
+    <main class="home-main">
+      <div class="home-grid">
+        <form id="createTripForm" class="card">
+          <h2>Create trip</h2>
+          <label>Trip name<input name="name" placeholder="Weekend trip" required></label>
+          <label>Currency<select name="currency"><option>INR</option><option>USD</option><option>EUR</option><option>GBP</option><option>SGD</option><option>AED</option></select></label>
+          <button>Create trip</button>
+        </form>
+        <form id="joinTripForm" class="card">
+          <h2>Join trip</h2>
+          <label>Invite code<input name="code" maxlength="8" placeholder="8-character code" required></label>
+          <button>Join trip</button>
+        </form>
+      </div>
+      <section><h2>Your trips</h2><div id="tripCards" class="trip-grid"></div></section>
+    </main>
+  </section>
+
+  <section id="tripScreen" hidden>
+    <header class="trip-header">
+      <div class="header-brand"><img src="/assets/icons/icon-64.png" alt=""><div><small>ACTIVE TRIP</small><h1 id="tripTitle"></h1><p id="syncStatus"></p></div></div>
+      <div class="header-actions">
+        <button type="button" id="inviteButton" class="header-button">Invite</button>
+        <button type="button" id="tripLogoutButton" class="header-button">Logout</button>
+      </div>
+    </header>
+    <main class="trip-main">
+      <div id="stats" class="stats"></div>
+      <section id="myPosition"></section>
+
+      <section id="expensesPanel" class="panel">
+        <article class="card">
+          <h2>Add expense</h2>
+          <form id="expenseForm">
+            <label>Description<input name="description" placeholder="Hotel, fuel, dinner" required></label>
+            <label>Amount<input name="amount" type="number" min=".01" step=".01" inputmode="decimal" placeholder="0.00" required></label>
+            <small>Date and time are recorded automatically.</small>
+            <fieldset><legend>Who paid?</legend><div id="payerChoices" class="choices"></div></fieldset>
+            <fieldset><legend>Split among</legend><div id="splitChoices" class="choices"></div></fieldset>
+            <button>Add expense</button>
+          </form>
+        </article>
+        <article class="card"><h2>Expenses</h2><div id="expenseList"></div></article>
+      </section>
+
+      <section id="peoplePanel" class="panel" hidden><div id="peopleList"></div></section>
+      <section id="detailsPanel" class="panel" hidden><div id="detailsList"></div></section>
+      <section id="settlePanel" class="panel" hidden>
+        <article class="card"><h2>Suggested settlements</h2><div id="settlementList"></div><h2>Settlement history</h2><div id="settlementHistory"></div></article>
+      </section>
+      <section id="settingsPanel" class="panel" hidden>
+        <article class="card settings-actions">
+          <button type="button" id="backToTripsButton" class="secondary">Back to my trips</button>
+          <button type="button" id="leaveTripButton" class="secondary">Leave trip</button>
+          <button type="button" id="deleteTripButton" class="danger">Delete trip</button>
+        </article>
+      </section>
+    </main>
+    <nav id="bottomNavigation">
+      <button type="button" data-panel="expensesPanel" class="active">Expenses</button>
+      <button type="button" data-panel="peoplePanel">People</button>
+      <button type="button" data-panel="detailsPanel">Details</button>
+      <button type="button" data-panel="settlePanel">Settle</button>
+      <button type="button" data-panel="settingsPanel">Settings</button>
+    </nav>
+  </section>
+
+  <div id="inviteOverlay" class="overlay" hidden>
+    <section class="invite-modal" role="dialog" aria-modal="true" aria-labelledby="inviteTitle">
+      <div class="modal-header"><h2 id="inviteTitle">Invite members</h2><button type="button" id="inviteCloseTopButton" class="round-button" aria-label="Close">×</button></div>
+      <img id="inviteQrImage" alt="Invite QR code">
+      <label>Invite link<input id="inviteLinkInput" readonly></label>
+      <button type="button" id="inviteShareButton">Share invite</button>
+      <button type="button" id="inviteCopyButton">Copy link</button>
+      <button type="button" id="inviteCloseButton" class="secondary">Close</button>
+    </section>
+  </div>
+
+  <div id="toastMessage" role="status"></div>
+  <script src="config.js?v=10.0.0"></script>
+  <script src="app.js?v=10.0.0"></script>
+</body>
+</html>

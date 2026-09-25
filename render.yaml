@@ -6,10 +6,19 @@ services:
     buildCommand: npm install
     startCommand: npm start
     healthCheckPath: /health
+    autoDeployTrigger: off
     envVars:
-      - {key: GITHUB_OWNER, sync: false}
-      - {key: GITHUB_REPO, sync: false}
-      - {key: GITHUB_TOKEN, sync: false}
-      - {key: GITHUB_BRANCH, value: main}
-      - {key: DATA_PATH, value: data/store.json}
-      - {key: ALLOWED_ORIGIN, sync: false}
+      - key: GITHUB_OWNER
+        sync: false
+      - key: GITHUB_REPO
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: GITHUB_BRANCH
+        value: main
+      - key: DATA_PATH
+        value: data/store.json
+      - key: PUBLIC_APP_URL
+        value: https://tripsynch.onrender.com
+      - key: APP_SECRET
+        generateValue: true

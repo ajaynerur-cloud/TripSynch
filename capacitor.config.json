@@ -2,7 +2,5 @@
   "appId": "com.ajaycloud.tripsynch",
   "appName": "TripSynch",
   "webDir": "www",
-  "server": {
-    "androidScheme": "https"
-  }
+  "server": { "androidScheme": "https" }
 }

@@ -1,19 +1,21 @@
-# TripSynch V8 Complete
+# TripSynch V10
 
-V8 is based on the supplied V5 source and preserves create/join, invite/QR, persistent payer radio selection, expense splitting, expense timestamps, People and Details views, settlement marking/history/undo, GitHub JSON storage, Render API, GitHub Pages, PWA and Android APK workflows.
+V10 preserves all V9 functionality and adds the supplied TripSynch branding across browser tabs, PWA installation, Windows/macOS/Linux desktop installation, iPhone/iPad home screen, Android launcher/adaptive assets, APK, splash screen, login screen, My Trips header, and active trip header.
 
-## Responsive layout
-- Phone: single-column cards and fixed five-tab navigation.
-- Tablet: two-column panels and four-column metrics.
-- Desktop: 1200px workspace, sticky expense form and two-column audit cards.
-- Very small phones: single-column metrics and stacked expense rows.
+## Branding assets
+- Master native icon: `assets/icon.png`
+- Capacitor source: `assets/icon-only.png`
+- Splash source: `assets/splash.png`
+- Browser/PWA icons: `frontend/assets/icons/`
+- Favicon: ICO plus 16px and 32px PNG
+- Apple touch icon: 180px PNG
+- PWA icons: 192px, 512px, and 1024px
 
-## Branding
-The uploaded TripSynch artwork is used for PWA icons, favicon, Apple touch icon, onboarding/header branding, Android launcher source and splash source.
+## Preserved V9 functionality
+Signup, login, logout, automatic invite join after authentication, My Trips, owner and invitee roles, expenses, payer radio buttons, split selection, timestamps, My Position, People, Details, settlements, settlement history, Undo, Settle & Remove, Remove, Leave Trip, Delete Trip, Render frontend/API, GitHub JSON storage, no-store frontend delivery, old cache cleanup, manual-only APK build, and Render auto-deploy disabled.
 
-## Deploy
-1. Drag all files into the Git repository root and replace old files.
-2. Commit and push.
-3. Render: clear build cache and deploy. `/health` returns TripSynch API v8.
-4. GitHub Pages: publish `main` `/docs`.
-5. APK: Actions > Build Android APK > Run workflow.
+## Build APK
+Run the `Build TripSynch V10 APK` workflow manually. The workflow generates native Android launcher and splash assets before Gradle builds the APK.
+
+## Data safety
+This package contains `data/store.example.json` and does not overwrite your populated `data/store.json`.

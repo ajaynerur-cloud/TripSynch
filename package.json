@@ -1,13 +1,13 @@
 {
-  "name": "tripsynch-v8",
-  "version": "8.0.0",
+  "name": "tripsynch-v9",
+  "version": "10.0.0",
   "private": true,
   "scripts": {
     "sync:web": "rm -rf www && cp -R frontend www",
     "android:add": "npm run sync:web && npx cap add android",
-    "assets:generate": "npx capacitor-assets generate",
     "android:sync": "npm run sync:web && npx cap sync android",
-    "android:debug": "npm run android:sync && cd android && ./gradlew assembleDebug"
+    "android:debug": "npm run android:sync && cd android && ./gradlew assembleDebug",
+    "assets:generate": "npx capacitor-assets generate"
   },
   "dependencies": {
     "@capacitor/android": "8.5.0",
@@ -15,6 +15,6 @@
     "@capacitor/core": "8.5.0"
   },
   "devDependencies": {
-    "@capacitor/assets": "3.0.5"
+    "@capacitor/assets": "^3.0.5"
   }
 }
