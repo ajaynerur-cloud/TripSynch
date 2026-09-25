@@ -19,6 +19,25 @@
       ],
       "expenses": [],
       "settlements": []
+    },
+    {
+      "id": "pWylfAblELq6DPYm",
+      "code": "AEDA9D7E",
+      "name": "trip",
+      "currency": "INR",
+      "ownerId": "9MG1zItoPt8Engeh",
+      "ownerSecretHash": "130744e42c470fc3abd1f58179ffbc7e70a8471bc77425adf5bfd38fc6fae558",
+      "memberSecrets": {},
+      "createdAt": "2026-09-25T15:35:59.627Z",
+      "members": [
+        {
+          "id": "9MG1zItoPt8Engeh",
+          "name": "ajay",
+          "joinedAt": "2026-09-25T15:35:59.627Z"
+        }
+      ],
+      "expenses": [],
+      "settlements": []
     }
   ]
 }
