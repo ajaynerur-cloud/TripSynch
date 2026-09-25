@@ -16,40 +16,5 @@
       "createdAt": "2026-09-25T18:14:33.980Z"
     }
   ],
-  "trips": [
-    {
-      "id": "1p7Q-_j_K1pBLIuP",
-      "code": "0C9C1BAF",
-      "name": "Personal Trip",
-      "currency": "INR",
-      "ownerUserId": "wC_nWgszMFU3NdMW",
-      "ownerId": "eRo6HU8U5ufT2w8_",
-      "createdAt": "2026-09-25T18:24:18.940Z",
-      "members": [
-        {
-          "id": "eRo6HU8U5ufT2w8_",
-          "userId": "wC_nWgszMFU3NdMW",
-          "name": "Ajaykumar Nerur Muthukrishnan",
-          "email": "ajaynerur@gmail.com",
-          "role": "owner",
-          "active": true,
-          "joinedAt": "2026-09-25T18:24:18.940Z"
-        }
-      ],
-      "expenses": [
-        {
-          "id": "_-ZMtCxO86DkOkYR",
-          "description": "test1",
-          "amount": 3000,
-          "paidBy": "eRo6HU8U5ufT2w8_",
-          "splitAmong": [
-            "eRo6HU8U5ufT2w8_"
-          ],
-          "createdBy": "eRo6HU8U5ufT2w8_",
-          "createdAt": "2026-09-25T18:24:37.416Z"
-        }
-      ],
-      "settlements": []
-    }
-  ]
+  "trips": []
 }
