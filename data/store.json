@@ -41,8 +41,10 @@
           "name": "Swetha",
           "email": "swethamohan87@gmail.com",
           "role": "member",
-          "active": true,
-          "joinedAt": "2026-09-25T18:14:35.806Z"
+          "active": false,
+          "joinedAt": "2026-09-25T18:14:35.806Z",
+          "removedAt": "2026-09-25T18:16:18.735Z",
+          "removedByUserId": "wC_nWgszMFU3NdMW"
         }
       ],
       "expenses": [
