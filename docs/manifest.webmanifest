@@ -1,17 +1,1 @@
-{
-  "name": "TripSynch",
-  "short_name": "TripSynch",
-  "start_url": "./",
-  "scope": "./",
-  "display": "standalone",
-  "background_color": "#F2F7F6",
-  "theme_color": "#075E55",
-  "icons": [
-    {
-      "src": "assets/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
-  ]
-}
+{"name":"TripSynch","short_name":"TripSynch","start_url":"./","display":"standalone","background_color":"#f2f7f6","theme_color":"#075e55"}

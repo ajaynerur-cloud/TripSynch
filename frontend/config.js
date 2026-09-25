@@ -1,3 +1,1 @@
-window.TRIPSYNCH_CONFIG = {
-  API_BASE: "https://tripsynch.onrender.com"
-};
+window.TRIPSYNCH_CONFIG={API_BASE:"https://tripsynch.onrender.com"};

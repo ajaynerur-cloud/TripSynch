@@ -5,6 +5,7 @@ services:
     rootDir: api
     buildCommand: npm install
     startCommand: npm start
+    healthCheckPath: /health
     envVars:
       - {key: GITHUB_OWNER, sync: false}
       - {key: GITHUB_REPO, sync: false}

@@ -1,18 +1,22 @@
-# TripSynch Mobile V2
+# TripSynch Settlement V3
 
-## Publish Pages
-Use repository Settings > Pages > Deploy from a branch > main > /docs.
+## New settlement feature
+- Settle tab shows the current optimized payment plan.
+- Mark as settled records a real payment in `trip.settlements`.
+- Recorded payments are applied to balances, immediately nullifying the corresponding outstanding amount.
+- Settlement history includes date/time and an Undo button.
+- Expenses are never deleted or changed when settling.
 
-## Render
-Create a Blueprint using render.yaml and set the prompted environment values.
+## Deploy
+Push all files. Render redeploys the API. GitHub Pages publishes `main` `/docs`.
 
-## Android locally
+## Existing trips
+No migration is needed. Trips without `settlements` are treated as having an empty settlement history.
+
+## Android
 ```bash
 npm install
 npm run android:add
 npm run android:debug
 ```
-APK: `android/app/build/outputs/apk/debug/app-debug.apk`
-
-## Android on GitHub
-Actions > Build Android APK > Run workflow, then download the artifact.
+Or run the included GitHub Actions workflow.
