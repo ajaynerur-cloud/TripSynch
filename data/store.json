@@ -1,4 +1,24 @@
 {
   "version": 5,
-  "trips": []
+  "trips": [
+    {
+      "id": "_0X1Bjx0FcFLCIcw",
+      "code": "375A7B49",
+      "name": "trip",
+      "currency": "INR",
+      "ownerId": "2oQ2xpWiFKrMUYcx",
+      "ownerSecretHash": "e1ca4d55985d5c14df682518710fc9aa37825fd18e9e62d072fc866f04ca9ded",
+      "memberSecrets": {},
+      "createdAt": "2026-09-25T15:35:59.213Z",
+      "members": [
+        {
+          "id": "2oQ2xpWiFKrMUYcx",
+          "name": "ajay",
+          "joinedAt": "2026-09-25T15:35:59.213Z"
+        }
+      ],
+      "expenses": [],
+      "settlements": []
+    }
+  ]
 }
