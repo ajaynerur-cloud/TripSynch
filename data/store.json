@@ -33,7 +33,19 @@
           "name": "Ajay"
         }
       ],
-      "expenses": []
+      "expenses": [
+        {
+          "id": "QZixbfXsF57jVeFZ",
+          "description": "hotel",
+          "amount": 1200,
+          "paidBy": "2cxrZQuniVtF4AmM",
+          "splitAmong": [
+            "2cxrZQuniVtF4AmM"
+          ],
+          "createdBy": "2cxrZQuniVtF4AmM",
+          "createdAt": "2026-09-25T04:01:01.523Z"
+        }
+      ]
     }
   ]
 }
