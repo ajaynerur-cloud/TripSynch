@@ -1,0 +1,16 @@
+{
+  "name": "tripsynch-v7",
+  "version": "7.0.0",
+  "private": true,
+  "scripts": {
+    "sync:web": "rm -rf www && cp -R frontend www",
+    "android:add": "npm run sync:web && npx cap add android",
+    "android:sync": "npm run sync:web && npx cap sync android",
+    "android:debug": "npm run android:sync && cd android && ./gradlew assembleDebug"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.5.0",
+    "@capacitor/cli": "8.5.0",
+    "@capacitor/core": "8.5.0"
+  }
+}
