@@ -34,6 +34,15 @@
           "role": "owner",
           "active": true,
           "joinedAt": "2026-09-25T18:13:46.209Z"
+        },
+        {
+          "id": "F37__o7EFzjoeuSA",
+          "userId": "fSp9lTKbtfPbfGhm",
+          "name": "Swetha",
+          "email": "swethamohan87@gmail.com",
+          "role": "member",
+          "active": true,
+          "joinedAt": "2026-09-25T18:14:35.806Z"
         }
       ],
       "expenses": [],
