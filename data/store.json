@@ -50,7 +50,17 @@
           "createdAt": "2026-09-25T09:18:46.476Z"
         }
       ],
-      "settlements": []
+      "settlements": [
+        {
+          "id": "ZFi_0r_SER_gdgcj",
+          "from": "w1paWx9HSaWh7miq",
+          "to": "a_VzN-UjiL1d-Jdw",
+          "amount": 200,
+          "status": "settled",
+          "settledBy": "a_VzN-UjiL1d-Jdw",
+          "settledAt": "2026-09-25T09:19:00.199Z"
+        }
+      ]
     }
   ]
 }
