@@ -17,7 +17,19 @@
           "joinedAt": "2026-09-25T09:29:49.163Z"
         }
       ],
-      "expenses": [],
+      "expenses": [
+        {
+          "id": "JWgf43ipajgb9gLA",
+          "description": "food",
+          "amount": 3500,
+          "paidBy": "F_2sj9CZFWEAljrb",
+          "splitAmong": [
+            "F_2sj9CZFWEAljrb"
+          ],
+          "createdBy": "F_2sj9CZFWEAljrb",
+          "createdAt": "2026-09-25T09:30:07.187Z"
+        }
+      ],
       "settlements": []
     }
   ]
