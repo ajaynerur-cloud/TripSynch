@@ -50,6 +50,18 @@
           ],
           "createdBy": "gRWm-iPVhNFJJ-YW",
           "createdAt": "2026-09-25T04:57:10.380Z"
+        },
+        {
+          "id": "ejgJ2mBmCDgItO_N",
+          "description": "petrol",
+          "amount": 3000,
+          "paidBy": "GzSt_R3jGT3TW84-",
+          "splitAmong": [
+            "gRWm-iPVhNFJJ-YW",
+            "GzSt_R3jGT3TW84-"
+          ],
+          "createdBy": "gRWm-iPVhNFJJ-YW",
+          "createdAt": "2026-09-25T04:58:14.656Z"
         }
       ],
       "settlements": []
