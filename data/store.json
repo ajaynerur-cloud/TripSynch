@@ -71,7 +71,17 @@
           "createdAt": "2026-09-25T18:15:41.252Z"
         }
       ],
-      "settlements": []
+      "settlements": [
+        {
+          "id": "_0bT2oCw_aoP3YQL",
+          "from": "83d8AFA0W467pFzy",
+          "to": "F37__o7EFzjoeuSA",
+          "amount": 6.43,
+          "status": "settled",
+          "settledByUserId": "wC_nWgszMFU3NdMW",
+          "settledAt": "2026-09-25T18:16:03.023Z"
+        }
+      ]
     }
   ]
 }
