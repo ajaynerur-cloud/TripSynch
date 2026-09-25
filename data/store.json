@@ -33,6 +33,18 @@
           ],
           "createdBy": "_8E7NG0kq3Q1eaO_",
           "createdAt": "2026-09-25T08:52:29.793Z"
+        },
+        {
+          "id": "N75hujljR5q3Szkr",
+          "description": "food",
+          "amount": 3500,
+          "paidBy": "b-Qo8Pz0gqpSzQQh",
+          "splitAmong": [
+            "_8E7NG0kq3Q1eaO_",
+            "b-Qo8Pz0gqpSzQQh"
+          ],
+          "createdBy": "_8E7NG0kq3Q1eaO_",
+          "createdAt": "2026-09-25T08:53:13.219Z"
         }
       ],
       "settlements": []
