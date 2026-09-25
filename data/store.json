@@ -16,7 +16,19 @@
           "name": "Ajay"
         }
       ],
-      "expenses": [],
+      "expenses": [
+        {
+          "id": "D5OsccqRKSr45Ngr",
+          "description": "petrol",
+          "amount": 3000,
+          "paidBy": "_8E7NG0kq3Q1eaO_",
+          "splitAmong": [
+            "_8E7NG0kq3Q1eaO_"
+          ],
+          "createdBy": "_8E7NG0kq3Q1eaO_",
+          "createdAt": "2026-09-25T08:52:29.793Z"
+        }
+      ],
       "settlements": []
     }
   ]
