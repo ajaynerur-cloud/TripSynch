@@ -35,6 +35,18 @@
           ],
           "createdBy": "cXYirKORUbmDiXu1",
           "createdAt": "2026-09-25T17:12:49.743Z"
+        },
+        {
+          "id": "_uS5dtvERE4kxdfw",
+          "description": "test1",
+          "amount": 3000,
+          "paidBy": "0J3wRHEEOcq3kfm6",
+          "splitAmong": [
+            "cXYirKORUbmDiXu1",
+            "0J3wRHEEOcq3kfm6"
+          ],
+          "createdBy": "cXYirKORUbmDiXu1",
+          "createdAt": "2026-09-25T17:13:54.307Z"
         }
       ],
       "settlements": []
