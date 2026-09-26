@@ -4,6 +4,18 @@ import crypto from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { httpError } from "./http-error.js";
+import {
+  initStorage,
+  isPrivacyViolation,
+  makeId,
+  mutateStore,
+  readStore,
+  redact,
+  refreshStorageStatus,
+  storageStatus
+} from "./storage.js";
+
 const app = express();
 app.disable("x-powered-by");
 app.use(express.json({ limit: "500kb" }));
@@ -11,11 +23,6 @@ app.use(express.json({ limit: "500kb" }));
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const frontendDir = path.resolve(__dirname, "../frontend");
 const {
-  GITHUB_OWNER,
-  GITHUB_REPO,
-  GITHUB_TOKEN,
-  GITHUB_BRANCH = "main",
-  DATA_PATH = "data/store.json",
   PUBLIC_APP_URL = "https://tripsynch.onrender.com",
   APP_SECRET,
   PORT = 10000
@@ -23,18 +30,8 @@ const {
 
 if (!APP_SECRET) console.warn("APP_SECRET is missing. Configure it in Render before production use.");
 
-const contentsUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${DATA_PATH}`;
-const githubHeaders = {
-  Accept: "application/vnd.github+json",
-  Authorization: `Bearer ${GITHUB_TOKEN}`,
-  "X-GitHub-Api-Version": "2022-11-28",
-  "User-Agent": "TripSynch-V10"
-};
-
-const makeId = (bytes = 12) => crypto.randomBytes(bytes).toString("base64url");
 const clean = (value, max = 120) => String(value ?? "").trim().slice(0, max);
 const normalizeEmail = value => clean(value, 180).toLowerCase();
-const httpError = (message, status = 400) => Object.assign(new Error(message), { status });
 const toCents = value => Math.round(Number(value || 0) * 100);
 
 function createPasswordHash(password, salt = crypto.randomBytes(16).toString("hex")) {
@@ -69,65 +66,6 @@ function parseToken(token) {
     return data.exp > Date.now() ? data : null;
   } catch {
     return null;
-  }
-}
-
-async function githubRequest(method, url, body) {
-  const response = await fetch(url, {
-    method,
-    headers: { ...githubHeaders, ...(body ? { "Content-Type": "application/json" } : {}) },
-    body: body ? JSON.stringify(body) : undefined
-  });
-  if (!response.ok) {
-    const detail = await response.text();
-    throw Object.assign(new Error(`GitHub ${method} failed: ${response.status} ${detail}`), { status: response.status });
-  }
-  return response.status === 204 ? null : response.json();
-}
-
-function normalizeStore(store) {
-  store.version = 9;
-  store.users ||= [];
-  store.trips ||= [];
-  for (const trip of store.trips) {
-    trip.members ||= [];
-    trip.expenses ||= [];
-    trip.settlements ||= [];
-  }
-  return store;
-}
-
-async function readStore() {
-  try {
-    const item = await githubRequest("GET", `${contentsUrl}?ref=${encodeURIComponent(GITHUB_BRANCH)}&t=${Date.now()}`);
-    const content = Buffer.from(item.content.replace(/\n/g, ""), "base64").toString("utf8");
-    return { store: normalizeStore(JSON.parse(content)), sha: item.sha };
-  } catch (error) {
-    if (error.status === 404) return { store: normalizeStore({}), sha: null };
-    throw error;
-  }
-}
-
-async function writeStore(store, sha, message) {
-  await githubRequest("PUT", contentsUrl, {
-    message,
-    branch: GITHUB_BRANCH,
-    content: Buffer.from(`${JSON.stringify(store, null, 2)}\n`).toString("base64"),
-    ...(sha ? { sha } : {})
-  });
-}
-
-async function mutateStore(change, message) {
-  for (let attempt = 1; attempt <= 5; attempt += 1) {
-    const { store, sha } = await readStore();
-    const result = change(store);
-    try {
-      await writeStore(store, sha, message);
-      return result;
-    } catch (error) {
-      if (![409, 422].includes(error.status) || attempt === 5) throw error;
-      await new Promise(resolve => setTimeout(resolve, attempt * 200));
-    }
   }
 }
 
@@ -199,7 +137,33 @@ async function requireUser(req, res, next) {
   }
 }
 
-app.get("/health", (req, res) => res.json({ ok: true, service: "TripSynch API v10", frontend: true, publicAppUrl: PUBLIC_APP_URL }));
+// Hard stop: if the configured data repository turned out to be public, the app
+// must not write emails or password hashes into it. /health explains why.
+app.use("/api", (req, res, next) => {
+  if (!isPrivacyViolation()) return next();
+  return res.status(503).json({ error: "Trip data storage is misconfigured. Please contact the administrator." });
+});
+
+app.get("/health", async (req, res) => {
+  const storage = await refreshStorageStatus();
+  const ok = storage.ready === true;
+  return res.status(ok ? 200 : 503).json({
+    ok,
+    service: "TripSynch API v10",
+    frontend: true,
+    publicAppUrl: PUBLIC_APP_URL,
+    // Deliberately name no owner, repo, path or token here: /health is public.
+    storage: {
+      kind: "github-private-repo",
+      configured: storage.configured,
+      ready: storage.ready,
+      private: storage.private,
+      bootstrapped: storage.bootstrapped,
+      checkedAt: storage.checkedAt,
+      ...(storage.error ? { error: storage.error } : {})
+    }
+  });
+});
 
 app.post("/api/auth/signup", async (req, res, next) => {
   try {
@@ -428,8 +392,24 @@ app.use(express.static(frontendDir, {
 }));
 app.get(/^(?!\/api\/).*/, (req, res) => res.set("Cache-Control", "no-store").sendFile(path.join(frontendDir, "index.html")));
 app.use((err, req, res, next) => {
-  console.error(err);
+  // Log redacted: storage errors carry a `detail` field that can quote GitHub
+  // responses, and the PAT must never reach the log stream.
+  const where = `${req.method} ${req.originalUrl}`;
+  console.error(redact(`${where} -> ${err.status || 500} ${err.message}`));
+  if (err.detail) console.error(redact(`  detail: ${err.detail}`));
+  if (!err.status) console.error(redact(err.stack || ""));
+
   if (res.headersSent) return next(err);
-  return res.status(err.status || 500).json({ error: err.status ? err.message : "Internal server error" });
+  const status = err.status || 500;
+  // Storage failures are infrastructure, not user input: never echo their detail.
+  if (err.storage) return res.status(status).json({ error: "Trip data is temporarily unavailable. Please retry." });
+  return res.status(status).json({ error: err.status ? err.message : "Internal server error" });
 });
-app.listen(Number(PORT), "0.0.0.0", () => console.log(`TripSynch V10 listening on ${PORT}`));
+
+app.listen(Number(PORT), "0.0.0.0", async () => {
+  console.log(`TripSynch V10 listening on ${PORT}`);
+  const storage = await initStorage();
+  if (!storage.ready) {
+    console.error("TripSynch started WITHOUT working data storage. /health will report 503 until this is fixed.");
+  }
+});

@@ -1,3 +1,6 @@
+# Render web service — unchanged in shape (same service, same runtime, same
+# root dir, same start command, same health check). Only the storage env vars
+# change: the JSON store now lives in a separate PRIVATE data repository.
 services:
   - type: web
     name: tripsynch
@@ -8,17 +11,26 @@ services:
     healthCheckPath: /health
     autoDeployTrigger: off
     envVars:
-      - key: GITHUB_OWNER
+      # --- private data repository -------------------------------------
+      - key: DATA_REPO_OWNER          # e.g. ajaynerur-cloud
         sync: false
-      - key: GITHUB_REPO
+      - key: DATA_REPO_NAME           # e.g. TripSynch-Data  (must be PRIVATE)
         sync: false
-      - key: GITHUB_TOKEN
+      - key: DATA_REPO_TOKEN          # fine-grained PAT, Contents: Read+Write, that repo only
         sync: false
-      - key: GITHUB_BRANCH
+      - key: DATA_REPO_BRANCH
         value: main
-      - key: DATA_PATH
-        value: data/store.json
+      - key: DATA_FILE_PATH
+        value: store.json
+      - key: DATA_COMMIT_NAME
+        value: TripSynch Bot
+      - key: DATA_COMMIT_EMAIL
+        value: tripsynch-bot@users.noreply.github.com
+      # --- app ----------------------------------------------------------
       - key: PUBLIC_APP_URL
         value: https://tripsynch.onrender.com
       - key: APP_SECRET
         generateValue: true
+      # Legacy GITHUB_OWNER / GITHUB_REPO / GITHUB_TOKEN / GITHUB_BRANCH / DATA_PATH
+      # are still honoured as a fallback by api/storage.js. Delete them from the
+      # Render dashboard once the DATA_REPO_* values are in place and /health is green.

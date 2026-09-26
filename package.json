@@ -1,13 +1,15 @@
 {
   "name": "tripsynch-v9",
-  "version": "10.0.0",
+  "version": "10.1.0",
   "private": true,
   "scripts": {
     "sync:web": "rm -rf www && cp -R frontend www",
     "android:add": "npm run sync:web && npx cap add android",
     "android:sync": "npm run sync:web && npx cap sync android",
     "android:debug": "npm run android:sync && cd android && ./gradlew assembleDebug",
-    "assets:generate": "npx capacitor-assets generate"
+    "assets:generate": "npx capacitor-assets generate",
+    "migrate:data": "node scripts/migrate-store-to-private-repo.mjs",
+    "migrate:data:dry": "node scripts/migrate-store-to-private-repo.mjs --dry-run"
   },
   "dependencies": {
     "@capacitor/android": "8.5.0",
