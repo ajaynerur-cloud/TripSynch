@@ -17,7 +17,7 @@ the paths. The Render web service definition is unchanged apart from env vars.
 | Path | Change |
 |---|---|
 | `api/server.js` | GitHub plumbing removed (now imported from `storage.js`); `/health` reports storage and returns 503 when not ready; `/api/*` refuses to serve if the data repo is public; error middleware redacts and no longer echoes GitHub detail to clients. Every route body is byte-for-byte unchanged. |
-| `render.yaml` | `DATA_REPO_*` env vars replace `GITHUB_*` / `DATA_PATH`. |
+| `render.yaml` | `DATA_REPO_*` env vars replace `GITHUB_*` / `DATA_PATH`; `DATA_FILE_PATH=data/store.json`. |
 | `api/package.json` | Version 10.1.0; `check` script covers the new modules. |
 | `package.json` | Version 10.1.0; adds `migrate:data` and `migrate:data:dry`. |
 | `README.md` | Data-storage section rewritten. |
@@ -33,6 +33,20 @@ client rebuild is required.
 git rm --cached data/store.json
 ```
 `data/store.example.json` stays.
+
+## Data repository layout
+
+`ajaynerur-cloud/TripSynch-Data` (private):
+
+```
+README.md
+data/
+  store.json     ← the live store
+```
+
+Seed files for it are in the separate `TripSynch-Data-seed/` folder. Committing
+them is optional: the service creates `data/store.json`, directory included, on
+first boot if it is absent.
 
 ## Verification performed
 The full stack was exercised against an in-memory GitHub Contents API:

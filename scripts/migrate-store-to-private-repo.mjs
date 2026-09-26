@@ -34,7 +34,7 @@ const cfg = {
   owner: process.env.DATA_REPO_OWNER || process.env.GITHUB_OWNER || "",
   repo: process.env.DATA_REPO_NAME || process.env.GITHUB_REPO || "",
   branch: process.env.DATA_REPO_BRANCH || process.env.GITHUB_BRANCH || "main",
-  path: (process.env.DATA_FILE_PATH || process.env.DATA_PATH || "store.json").replace(/^\/+/, ""),
+  path: (process.env.DATA_FILE_PATH || process.env.DATA_PATH || "data/store.json").replace(/^\/+/, ""),
   token: process.env.DATA_REPO_TOKEN || process.env.GITHUB_TOKEN || ""
 };
 

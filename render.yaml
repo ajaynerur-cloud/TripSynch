@@ -14,14 +14,14 @@ services:
       # --- private data repository -------------------------------------
       - key: DATA_REPO_OWNER          # e.g. ajaynerur-cloud
         sync: false
-      - key: DATA_REPO_NAME           # e.g. TripSynch-Data  (must be PRIVATE)
+      - key: DATA_REPO_NAME           # TripSynch-Data  (must be PRIVATE)
         sync: false
       - key: DATA_REPO_TOKEN          # fine-grained PAT, Contents: Read+Write, that repo only
         sync: false
       - key: DATA_REPO_BRANCH
         value: main
       - key: DATA_FILE_PATH
-        value: store.json
+        value: data/store.json
       - key: DATA_COMMIT_NAME
         value: TripSynch Bot
       - key: DATA_COMMIT_EMAIL

@@ -18,7 +18,7 @@ Render web service  ─ GitHub API ─▶      Render web service ─ GitHub API
   (tripsynch)         PUBLIC repo          (tripsynch)         PRIVATE repo
                       ajaynerur-cloud/                         ajaynerur-cloud/
                       TripSynch                                TripSynch-Data
-                      data/store.json                          store.json
+                      data/store.json                          data/store.json
                       ⚠ emails + password                      ✅ not world-readable
                         hashes world-readable                  ✅ history = audit log
 ```
@@ -56,7 +56,7 @@ half-configured deploy never loses storage.
 | `DATA_REPO_NAME` | `GITHUB_REPO` | — | The **private** data repo |
 | `DATA_REPO_TOKEN` | `GITHUB_TOKEN` | — | Fine-grained PAT, `Contents: Read and write`, scoped to that one repo |
 | `DATA_REPO_BRANCH` | `GITHUB_BRANCH` | `main` | |
-| `DATA_FILE_PATH` | `DATA_PATH` | `store.json` | Path inside the data repo |
+| `DATA_FILE_PATH` | `DATA_PATH` | `data/store.json` | Path inside the data repo |
 | `DATA_COMMIT_NAME` | — | `TripSynch Bot` | Commit author shown in the data repo |
 | `DATA_COMMIT_EMAIL` | — | `tripsynch-bot@users.noreply.github.com` | |
 | `ALLOW_PUBLIC_DATA_REPO` | — | `false` | Escape hatch for throwaway testing only |
@@ -65,7 +65,10 @@ half-configured deploy never loses storage.
 
 **Startup check.** `initStorage()` runs after `listen`. It verifies the token
 can see the repo, **refuses to become ready if the data repo is public**, warns
-if the token is read-only, and creates `store.json` if it does not exist yet.
+if the token is read-only, and creates `data/store.json` if it does not exist
+yet. The Contents API creates the `data/` directory as part of that first
+commit, so the repo does not need it pre-made — though the seed files make it
+explicit.
 
 **Health gate.** `/health` returns `200` only when storage is ready, otherwise
 `503` with a reason. A misconfigured deploy therefore fails Render's health
@@ -95,8 +98,13 @@ carried into the new repo.
 
 ## Cutover
 
-1. Create the private repo, e.g. `ajaynerur-cloud/TripSynch-Data`
-   (**Private**, initialise with a README so `main` exists).
+1. The private repo `ajaynerur-cloud/TripSynch-Data` already exists. Commit the
+   seed layout to it so `main` and the `data/` directory are in place:
+   ```
+   README.md
+   data/store.json      {"version": 9, "users": [], "trips": []}
+   ```
+   (Optional — the service bootstraps `data/store.json` itself on first boot.)
 2. Create a fine-grained PAT: *Only select repositories* → the data repo →
    Repository permissions → **Contents: Read and write**. Nothing else.
 3. Migrate the existing data:
@@ -110,7 +118,7 @@ carried into the new repo.
 4. In Render → tripsynch → Environment, add the `DATA_REPO_*` variables and
    deploy. Confirm `GET /health` shows `storage.ready: true` and
    `storage.private: true`.
-5. Remove the live data file from this repo and stop tracking it:
+5. Remove the live data file from the application repo and stop tracking it:
    ```bash
    git rm --cached data/store.json
    git commit -m "chore: move live store into the private data repository"

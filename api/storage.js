@@ -35,7 +35,7 @@ export const config = Object.freeze({
   owner: pick("DATA_REPO_OWNER", "GITHUB_OWNER"),
   repo: pick("DATA_REPO_NAME", "GITHUB_REPO"),
   branch: pick("DATA_REPO_BRANCH", "GITHUB_BRANCH") || "main",
-  filePath: (pick("DATA_FILE_PATH", "DATA_PATH") || "store.json").replace(/^\/+/, ""),
+  filePath: (pick("DATA_FILE_PATH", "DATA_PATH") || "data/store.json").replace(/^\/+/, ""),
   token: pick("DATA_REPO_TOKEN", "GITHUB_TOKEN"),
   committerName: pick("DATA_COMMIT_NAME") || "TripSynch Bot",
   committerEmail: pick("DATA_COMMIT_EMAIL") || "tripsynch-bot@users.noreply.github.com",

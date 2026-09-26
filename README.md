@@ -18,7 +18,7 @@ Signup, login, logout, automatic invite join after authentication, My Trips, own
 Run the `Build TripSynch V10 APK` workflow manually. The workflow generates native Android launcher and splash assets before Gradle builds the APK.
 
 ## Data storage
-The JSON store lives in a **separate private GitHub repository**, not in this repo. The Render web service is unchanged; only the storage target and its environment variables moved. See [ARCHITECTURE.md](ARCHITECTURE.md) for the design, the full env-var table and the cutover steps.
+The JSON store lives at `data/store.json` in the **private** repo [`ajaynerur-cloud/TripSynch-Data`](https://github.com/ajaynerur-cloud/TripSynch-Data), not in this repo. The Render web service is unchanged; only the storage target and its environment variables moved. See [ARCHITECTURE.md](ARCHITECTURE.md) for the design, the full env-var table and the cutover steps.
 
 Quick version:
 
@@ -26,6 +26,7 @@ Quick version:
 DATA_REPO_OWNER=ajaynerur-cloud \
 DATA_REPO_NAME=TripSynch-Data \
 DATA_REPO_TOKEN=github_pat_xxx \
+DATA_FILE_PATH=data/store.json \
 npm run migrate:data
 ```
 
